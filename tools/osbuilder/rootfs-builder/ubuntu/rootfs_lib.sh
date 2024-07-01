@@ -23,7 +23,8 @@ bootstrap=Ubuntu
 source=$REPO_URL
 keyring=ubuntu-keyring
 suite=$UBUNTU_CODENAME
-packages=$PACKAGES $EXTRA_PKGS
+packages=$PACKAGES $EXTRA_PKGS openssh-server netplan.io ubuntu-minimal dmsetup
+
 EOF
 
 	if [ "${CONFIDENTIAL_GUEST}" == "yes" ] && [ "${DEB_ARCH}" == "amd64" ]; then
@@ -59,4 +60,60 @@ EOF
 	pushd $rootfs_dir/dev
 	MAKEDEV -v console tty ttyS null zero fd
 	popd
+
+	mkdir -p "$rootfs_dir/etc/netplan"
+	cat > "$rootfs_dir/etc/netplan/01-network-manager-all.yaml" << EOF
+# Let NetworkManager manage all devices on this system
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    ens3:
+      dhcp4: yes
+
+EOF
+
+	cat > "$rootfs_dir/etc/fstab" << EOF
+/dev/mapper/crypto       /run/state         ext4    defaults,x-systemd.makefs,x-mount.mkdir    0    1
+/run/state/var           /var               none    defaults,bind,x-mount.mkdir                0    0
+#/run/state/kubernetes    /etc/kubernetes    none    defaults,bind,x-mount.mkdir                0    0
+#/run/state/etccni        /etc/cni/          none    defaults,bind,x-mount.mkdir                0    0
+/run/state/opt           /opt               none    defaults,bind,x-mount.mkdir                0    0
+EOF
+
+
+	local unitFile="/etc/systemd/system/state_disk_mount.service"
+	local scriptFile="/usr/local/bin/state_disk_mount.sh"
+	mkdir -p `dirname "$rootfs_dir/$unitFile"`
+
+	cat > "$rootfs_dir/$unitFile" << EOF
+[Unit]
+Description=Create LUKS partition
+Before=local-fs.target cryptsetup.target
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+ExecStart=$scriptFile
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+	ln -s $unitFile "$rootfs_dir/etc/systemd/system/multi-user.target.wants/state_disk_mount.service"
+
+	mkdir -p `dirname "$rootfs_dir/scriptFile"`
+
+	cat > "$rootfs_dir/$scriptFile" << EOF
+#!/bin/bash
+wipefs -a /dev/vdb
+RANDOM_KEY=$(dd if=/dev/urandom bs=1 count=32 2>/dev/null | base64)
+echo "\$RANDOM_KEY" | cryptsetup luksFormat /dev/vdb --batch-mode
+echo "\$RANDOM_KEY" | cryptsetup luksOpen /dev/vdb crypto
+mkfs.ext4 /dev/mapper/crypto
+EOF
+
+	chmod +x $rootfs_dir/$scriptFile
+
+	echo 'root:123456' | chroot $rootfs_dir chpasswd
 }

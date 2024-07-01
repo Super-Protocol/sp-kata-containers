@@ -670,17 +670,17 @@ EOF
 		fi
 
 		info "Build agent"
-		pushd "${agent_dir}"
-		if [ -n "${AGENT_VERSION}" ]; then
-			git checkout "${AGENT_VERSION}" && OK "git checkout successful" || die "checkout agent ${AGENT_VERSION} failed!"
-		fi
-		make clean
-		make LIBC=${LIBC} INIT=${AGENT_INIT} SECCOMP=${SECCOMP} AGENT_POLICY=${AGENT_POLICY} PULL_TYPE=${PULL_TYPE}
-		make install DESTDIR="${ROOTFS_DIR}" LIBC=${LIBC} INIT=${AGENT_INIT}
-		if [ "${SECCOMP}" == "yes" ]; then
-			rm -rf "${libseccomp_install_dir}" "${gperf_install_dir}"
-		fi
-		popd
+		#pushd "${agent_dir}"
+		#if [ -n "${AGENT_VERSION}" ]; then
+		#	git checkout "${AGENT_VERSION}" && OK "git checkout successful" || die "checkout agent ${AGENT_VERSION} failed!"
+		#fi
+		#make clean
+		#make LIBC=${LIBC} INIT=${AGENT_INIT} SECCOMP=${SECCOMP} AGENT_POLICY=${AGENT_POLICY} PULL_TYPE=${PULL_TYPE}
+		#make install DESTDIR="${ROOTFS_DIR}" LIBC=${LIBC} INIT=${AGENT_INIT}
+		#if [ "${SECCOMP}" == "yes" ]; then
+		#	rm -rf "${libseccomp_install_dir}" "${gperf_install_dir}"
+		#fi
+		#popd
 	elif [ -n "${AGENT_SOURCE_BIN}" ]; then
 		mkdir -p ${AGENT_DIR}
 		cp ${AGENT_SOURCE_BIN} ${AGENT_DEST}
@@ -696,13 +696,13 @@ EOF
 
 	if [ "${AGENT_INIT}" == "yes" ]; then
 		setup_agent_init "${AGENT_DEST}" "${init}"
-	else
+	#else
 		# Setup systemd-based environment for kata-agent
-		mkdir -p "${ROOTFS_DIR}/etc/systemd/system/basic.target.wants"
-		ln -sf "/usr/lib/systemd/system/kata-containers.target" "${ROOTFS_DIR}/etc/systemd/system/basic.target.wants/kata-containers.target"
-		mkdir -p "${ROOTFS_DIR}/etc/systemd/system/kata-containers.target.wants"
-		ln -sf "/usr/lib/systemd/system/dbus.socket" "${ROOTFS_DIR}/etc/systemd/system/kata-containers.target.wants/dbus.socket"
-		chmod g+rx,o+x "${ROOTFS_DIR}"
+		#mkdir -p "${ROOTFS_DIR}/etc/systemd/system/basic.target.wants"
+		#ln -sf "/usr/lib/systemd/system/kata-containers.target" "${ROOTFS_DIR}/etc/systemd/system/basic.target.wants/kata-containers.target"
+		#mkdir -p "${ROOTFS_DIR}/etc/systemd/system/kata-containers.target.wants"
+		#ln -sf "/usr/lib/systemd/system/dbus.socket" "${ROOTFS_DIR}/etc/systemd/system/kata-containers.target.wants/dbus.socket"
+		#chmod g+rx,o+x "${ROOTFS_DIR}"
 	fi
 
 	if [ "${AGENT_POLICY}" == "yes" ]; then

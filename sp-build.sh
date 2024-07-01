@@ -1,12 +1,19 @@
 #/bin/bash
 
-export distro="ubuntu" # example
-export ROOTFS_DIR="$(realpath ./tools/osbuilder/rootfs-builder/rootfs)"
-SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
+STATE_DISK_SIZE=100
+VM_MEMORY=16
+VM_CPU=4
 
-sudo rm -rf "${ROOTFS_DIR}"
+export DISTRO="ubuntu"
+SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
+export ROOTFS_DIR="${SCRIPT_DIR}/build/rootfs"
+
+rm -rf "${SCRIPT_DIR}/build"
+mkdir -p "${SCRIPT_DIR}/build/rootfs"
+
+rm -rf "${ROOTFS_DIR}"
 pushd "${SCRIPT_DIR}/tools/osbuilder/rootfs-builder"
-script -fec 'sudo -E USE_DOCKER=true MEASURED_ROOTFS=yes ./rootfs.sh "${distro}"'
+script -fec 'sudo -E USE_DOCKER=true MEASURED_ROOTFS=yes ./rootfs.sh "${DISTRO}"'
 popd
 
 pushd "${SCRIPT_DIR}/tools/osbuilder/image-builder"
@@ -15,4 +22,27 @@ popd
 
 pushd "${SCRIPT_DIR}/tools/packaging/kata-deploy/local-build"
 ./kata-deploy-binaries-in-docker.sh --build=kernel-confidential
+popd
+
+cp "${SCRIPT_DIR}/tools/osbuilder/image-builder/kata-containers.img" "${SCRIPT_DIR}/build/rootfs.img"
+cp "${SCRIPT_DIR}/tools/osbuilder/image-builder/root_hash.txt" "${SCRIPT_DIR}/build/"
+cp -L "${SCRIPT_DIR}/tools/packaging/kata-deploy/local-build/build/kernel-confidential/destdir/opt/kata/share/kata-containers/vmlinuz-confidential.container" "${SCRIPT_DIR}/build/vmlinuz"
+
+pushd "${SCRIPT_DIR}/build"
+qemu-img create -f qcow2 state.qcow2 ${STATE_DISK_SIZE}G
+
+ROOT_HASH=$(grep 'Root hash' root_hash.txt | awk '{print $3}')
+
+QEMU_COMMAND="qemu-system-x86_64 \
+    -drive file=rootfs.img,if=virtio,format=raw \
+    -drive file=state.qcow2,if=virtio,format=qcow2 \
+    -m ${VM_MEMORY}G \
+    -smp ${VM_CPU} \
+    -nographic \
+    -kernel vmlinuz \
+    -append \"root=/dev/vda1 console=ttyS0 systemd.log_level=trace systemd.log_target=log rootfs_verity.scheme=dm-verity rootfs_verity.hash=${ROOT_HASH}\" \
+    -device virtio-net-pci,netdev=nic0_td -netdev user,id=nic0_td,hostfwd=tcp::2222-:22"
+
+echo "${QEMU_COMMAND}" > run_vm.sh
+chmod +x run_vm.sh
 popd

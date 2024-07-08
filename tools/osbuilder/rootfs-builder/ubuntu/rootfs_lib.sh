@@ -15,13 +15,17 @@ build_rootfs() {
 	# For simplicity's sake, use multistrap for foreign and native bootstraps.
 	cat > "$multistrap_conf" << EOF
 [General]
-cleanup=true
-aptsources=Ubuntu
+aptsources=Ubuntu Ubuntu-updates
 bootstrap=Ubuntu
+
+
+[Ubuntu-updates]
+source=$REPO_URL
+keyring=ubuntu-keyring
+suite=$UBUNTU_CODENAME-updates
 
 [Ubuntu]
 source=$REPO_URL
-keyring=ubuntu-keyring
 suite=$UBUNTU_CODENAME
 packages=$PACKAGES $EXTRA_PKGS openssh-server netplan.io ubuntu-minimal dmsetup
 
@@ -114,6 +118,19 @@ mkfs.ext4 /dev/mapper/crypto
 EOF
 
 	chmod +x $rootfs_dir/$scriptFile
+	local UPDATE_LIBC_SCRIPT="update_libc6.sh"
 
+		cat > "$rootfs_dir/$UPDATE_LIBC_SCRIPT" << EOF
+mkdir -p /var/cache/apt/archives/partial
+mkdir -p /var/log/apt
+dpkg --configure -a
+
+apt install libc6 --no-install-recommends -y
+
+rm -rf /var/log/apt
+rm -rf /var/cache/apt/archives/partial
+EOF
+	chroot "$rootfs_dir" /bin/bash "/$UPDATE_LIBC_SCRIPT"
+	chroot "$rootfs_dir" /bin/bash -c "rm -f /$UPDATE_LIBC_SCRIPT"
 	echo 'root:123456' | chroot $rootfs_dir chpasswd
 }

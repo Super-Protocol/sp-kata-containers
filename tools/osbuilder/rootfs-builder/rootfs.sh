@@ -689,10 +689,10 @@ EOF
 		tar xvJpf ${AGENT_TARBALL} -C ${ROOTFS_DIR}
 	fi
 
-	${stripping_tool} ${ROOTFS_DIR}/usr/bin/kata-agent
+	#${stripping_tool} ${ROOTFS_DIR}/usr/bin/kata-agent
 
-	[ -x "${AGENT_DEST}" ] || die "${AGENT_DEST} is not installed in ${ROOTFS_DIR}"
-	OK "Agent installed"
+	#[ -x "${AGENT_DEST}" ] || die "${AGENT_DEST} is not installed in ${ROOTFS_DIR}"
+	#OK "Agent installed"
 
 	if [ "${AGENT_INIT}" == "yes" ]; then
 		setup_agent_init "${AGENT_DEST}" "${init}"

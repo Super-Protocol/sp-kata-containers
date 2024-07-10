@@ -8,25 +8,33 @@ export DISTRO="ubuntu"
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 export ROOTFS_DIR="${SCRIPT_DIR}/build/rootfs"
 
-rm -rf "${SCRIPT_DIR}/build"
-mkdir -p "${SCRIPT_DIR}/build/rootfs"
+KERNEL_NAME=nvidia-gpu-confidential
 
-rm -rf "${ROOTFS_DIR}"
+pushd "${SCRIPT_DIR}/tools/packaging/kata-deploy/local-build"
+./kata-deploy-binaries-in-docker.sh --build="kernel-${KERNEL_NAME}"
+popd
+
+rm -rf "${SCRIPT_DIR}/build"
+mkdir -p "${SCRIPT_DIR}/build/rootfs/opt/deb"
+
+pushd "${SCRIPT_DIR}/build/rootfs/opt/deb"
+find "${SCRIPT_DIR}/tools/packaging/kata-deploy/local-build/build/kernel-${KERNEL_NAME}/builddir/" -name "*.deb" -exec cp {} . \;
+mkdir nvidia
+cd nvidia
+wget "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb"
+popd
+
 pushd "${SCRIPT_DIR}/tools/osbuilder/rootfs-builder"
-script -fec 'sudo -E USE_DOCKER=true MEASURED_ROOTFS=yes ./rootfs.sh "${DISTRO}"'
+script -fec 'sudo -E USE_DOCKER=true MEASURED_ROOTFS=yes EXTRA_PKGS="openssh-server netplan.io ubuntu-minimal dmsetup ca-certificates" ./rootfs.sh "${DISTRO}"'
 popd
 
 pushd "${SCRIPT_DIR}/tools/osbuilder/image-builder"
-script -fec 'sudo -E USE_DOCKER=true MEASURED_ROOTFS=yes ./image_builder.sh "${ROOTFS_DIR}"'
-popd
-
-pushd "${SCRIPT_DIR}/tools/packaging/kata-deploy/local-build"
-./kata-deploy-binaries-in-docker.sh --build=kernel-confidential
+script -fec 'sudo -E USE_DOCKER=true MEASURED_ROOTFS=yes ./image_builder.sh -r 1000 "${ROOTFS_DIR}"'
 popd
 
 cp "${SCRIPT_DIR}/tools/osbuilder/image-builder/kata-containers.img" "${SCRIPT_DIR}/build/rootfs.img"
 cp "${SCRIPT_DIR}/tools/osbuilder/image-builder/root_hash.txt" "${SCRIPT_DIR}/build/"
-cp -L "${SCRIPT_DIR}/tools/packaging/kata-deploy/local-build/build/kernel-confidential/destdir/opt/kata/share/kata-containers/vmlinuz-confidential.container" "${SCRIPT_DIR}/build/vmlinuz"
+cp -L "${SCRIPT_DIR}/tools/packaging/kata-deploy/local-build/build/kernel-${KERNEL_NAME}/destdir/opt/kata/share/kata-containers/vmlinuz-${KERNEL_NAME}.container" "${SCRIPT_DIR}/build/vmlinuz"
 
 pushd "${SCRIPT_DIR}/build"
 qemu-img create -f qcow2 state.qcow2 ${STATE_DISK_SIZE}G

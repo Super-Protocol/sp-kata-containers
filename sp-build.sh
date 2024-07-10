@@ -29,7 +29,7 @@ script -fec 'sudo -E USE_DOCKER=true MEASURED_ROOTFS=yes EXTRA_PKGS="openssh-ser
 popd
 
 pushd "${SCRIPT_DIR}/tools/osbuilder/image-builder"
-script -fec 'sudo -E USE_DOCKER=true MEASURED_ROOTFS=yes ./image_builder.sh -r 1000 "${ROOTFS_DIR}"'
+script -fec 'sudo -E USE_DOCKER=true MEASURED_ROOTFS=yes ./image_builder.sh "${ROOTFS_DIR}"'
 popd
 
 cp "${SCRIPT_DIR}/tools/osbuilder/image-builder/kata-containers.img" "${SCRIPT_DIR}/build/rootfs.img"

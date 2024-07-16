@@ -26,6 +26,12 @@ run_postbuild() {
 
 	echo 'root:123456' | chroot $rootfs_dir chpasswd
 
+	set -x
+	cp ${script_dir}/rke.sh ${rootfs_dir}
+	chroot "$rootfs_dir" /bin/bash "/rke.sh"
+	rm -f ${rootfs_dir}/rke.sh
+	set +x
+
 	umount ${rootfs_dir}/dev/pts
 	umount ${rootfs_dir}/dev
 	umount ${rootfs_dir}/tmp

@@ -6,7 +6,7 @@ cat > "/etc/rancher/rke2/config.yaml" <<EOF
 kubelet-arg:
   - max-pods=256
 cni:
-  - cilium
+  - none
 EOF
 cat > "/etc/rancher/rke2/registries.yaml" <<EOF
 configs:
@@ -44,6 +44,7 @@ systemctl enable rke2-server.service && systemctl start rke2-server.service
 mkdir -p "/etc/rancher/rke2/"
 mkdir -p "/var/lib/rancher/rke2"
 
+#cat > "/etc/rancher/rke2/rke2-pss.yaml" <<EOF
 cat > "/var/lib/rancher/rke2/rke2-pss.yaml" <<EOF
 apiVersion: apiserver.config.k8s.io/v1
 kind: AdmissionConfiguration
@@ -67,4 +68,9 @@ RKE2_KUBECONFIG_OUTPUT=/var/lib/rancher/rke2/rke2.yaml
 EOF
 
 # debug
-echo "stty cols 180 rows 30" > /etc/profile
+echo "stty cols 180 rows 30" >> /etc/profile
+
+cat /etc/rancher/rke2/rke2-pss.yaml
+
+echo "export KUBECONFIG=/var/lib/rancher/rke2/rke2.yaml" >>  /etc/profile
+echo "alias k='/var/lib/rancher/rke2/bin/kubectl'" >>  /etc/profile

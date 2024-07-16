@@ -41,16 +41,20 @@ qemu-img create -f qcow2 state.qcow2 ${STATE_DISK_SIZE}G
 
 ROOT_HASH=$(grep 'Root hash' root_hash.txt | awk '{print $3}')
 
-QEMU_COMMAND="qemu-system-x86_64 \
-    -drive file=rootfs.img,if=virtio,format=raw \
-    -drive file=state.qcow2,if=virtio,format=qcow2 \
+PWD_COMMAND='SCRIPT_DIR=$( cd "$( dirname "$0" )" && pwd )'
+QEMU_COMMAND="
+qemu-system-x86_64 \
+    -drive file=\$SCRIPT_DIR/rootfs.img,if=virtio,format=raw \
+    -drive file=\$SCRIPT_DIR/state.qcow2,if=virtio,format=qcow2 \
     -m ${VM_MEMORY}G \
     -smp ${VM_CPU} \
     -nographic \
-    -kernel vmlinuz \
+    -kernel \$SCRIPT_DIR/vmlinuz \
     -append \"root=/dev/vda1 console=ttyS0 systemd.log_level=trace systemd.log_target=log rootfs_verity.scheme=dm-verity rootfs_verity.hash=${ROOT_HASH}\" \
     -device virtio-net-pci,netdev=nic0_td -netdev user,id=nic0_td,hostfwd=tcp::2222-:22"
 
-echo "${QEMU_COMMAND}" > run_vm.sh
+echo "${PWD_COMMAND}" > run_vm.sh
+echo "${QEMU_COMMAND}" >> run_vm.sh
+
 chmod +x run_vm.sh
 popd

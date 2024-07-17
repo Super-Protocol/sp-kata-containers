@@ -5,6 +5,9 @@ mkdir -p "/etc/rancher/rke2"
 cat > "/etc/rancher/rke2/config.yaml" <<EOF
 kubelet-arg:
   - max-pods=256
+disable:
+  - rke2-ingress-nginx
+  - rke2-metrics-server
 cni:
   - none
 EOF

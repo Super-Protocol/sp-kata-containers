@@ -73,9 +73,10 @@ RKE2_KUBECONFIG_OUTPUT=/var/lib/rancher/rke2/rke2.yaml
 EOF
 
 # debug
-echo "stty cols 180 rows 30" >> /etc/profile
+echo "stty cols 180 rows 50" >> /etc/profile
 
 cat /etc/rancher/rke2/rke2-pss.yaml
 
 echo "export KUBECONFIG=/var/lib/rancher/rke2/rke2.yaml" >>  /etc/profile
 echo "alias k='/var/lib/rancher/rke2/bin/kubectl'" >>  /etc/profile
+echo "alias kubectl='/var/lib/rancher/rke2/bin/kubectl'" >>  /etc/profile

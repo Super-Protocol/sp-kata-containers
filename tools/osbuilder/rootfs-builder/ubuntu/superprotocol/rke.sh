@@ -75,6 +75,8 @@ EOF
 # debug
 echo "stty cols 180 rows 50" >> /etc/profile
 
+#update-alternatives --set iptables /usr/sbin/iptables-legacy
+
 cat /etc/rancher/rke2/rke2-pss.yaml
 
 echo "export KUBECONFIG=/var/lib/rancher/rke2/rke2.yaml" >>  /etc/profile

@@ -81,3 +81,7 @@ cat /etc/rancher/rke2/rke2-pss.yaml
 echo "export KUBECONFIG=/var/lib/rancher/rke2/rke2.yaml" >>  /etc/profile
 echo "alias k='/var/lib/rancher/rke2/bin/kubectl'" >>  /etc/profile
 echo "alias kubectl='/var/lib/rancher/rke2/bin/kubectl'" >>  /etc/profile
+
+sed -i 's|[#]*PasswordAuthentication .*|PasswordAuthentication yes|g' /etc/ssh/sshd_config
+sed -i 's|[#]*PermitRootLogin .*|PermitRootLogin yes|g' /etc/ssh/sshd_config
+sed -i 's|[#]*KbdInteractiveAuthentication .*|KbdInteractiveAuthentication yes|g' /etc/ssh/sshd_config

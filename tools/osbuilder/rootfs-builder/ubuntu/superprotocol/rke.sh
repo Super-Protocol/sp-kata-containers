@@ -9,7 +9,9 @@ disable:
   - rke2-ingress-nginx
   - rke2-metrics-server
 cni:
-  - none
+# - none
+# - cilium
+  - flannel
 EOF
 cat > "/etc/rancher/rke2/registries.yaml" <<EOF
 configs:

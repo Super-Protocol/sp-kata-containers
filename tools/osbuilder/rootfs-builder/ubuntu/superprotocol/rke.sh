@@ -43,7 +43,7 @@ EOF
 mkdir -p "/etc/rancher/node"
 LC_ALL=C tr -dc '[:alpha:][:digit:]' </dev/urandom | head -c 32 > /etc/rancher/node/password
 
-curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL="v1.28.5+rke2r1" sh -
+curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL="v1.28.11+rke2r1" sh -
 systemctl enable rke2-server.service && systemctl start rke2-server.service
 
 mkdir -p "/etc/rancher/rke2/"

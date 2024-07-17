@@ -50,7 +50,7 @@ qemu-system-x86_64 \
     -smp ${VM_CPU} \
     -nographic \
     -kernel \$SCRIPT_DIR/vmlinuz \
-    -append \"root=/dev/vda1 console=ttyS0 systemd.log_level=trace systemd.log_target=log rootfs_verity.scheme=dm-verity rootfs_verity.hash=${ROOT_HASH}\" \
+    -append \"root=/dev/vda1 rw console=ttyS0 systemd.log_level=trace systemd.log_target=log rootfs_verity.scheme=qwedm-verity rootfs_verity.hash=${ROOT_HASH}\" \
     -device virtio-net-pci,netdev=nic0_td -netdev user,id=nic0_td,hostfwd=tcp::2222-:22"
 
 echo "${PWD_COMMAND}" > run_vm.sh

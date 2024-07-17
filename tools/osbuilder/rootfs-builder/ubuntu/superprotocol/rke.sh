@@ -68,7 +68,6 @@ plugins:
 EOF
 
 cat >> /usr/local/lib/systemd/system/rke2-server.env <<EOF
-RKE2_POD_SECURITY_ADMISSION_CONFIG_FILE=/var/lib/rancher/rke2/rke2-pss.yaml
 RKE2_KUBECONFIG_OUTPUT=/var/lib/rancher/rke2/rke2.yaml
 EOF
 

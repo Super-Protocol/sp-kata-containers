@@ -44,6 +44,7 @@ ROOT_HASH=$(grep 'Root hash' root_hash.txt | awk '{print $3}')
 PWD_COMMAND='SCRIPT_DIR=$( cd "$( dirname "$0" )" && pwd )'
 QEMU_COMMAND="
 qemu-system-x86_64 \
+    -accel kvm \
     -drive file=\$SCRIPT_DIR/rootfs.img,if=virtio,format=raw \
     -drive file=\$SCRIPT_DIR/state.qcow2,if=virtio,format=qcow2 \
     -m ${VM_MEMORY}G \

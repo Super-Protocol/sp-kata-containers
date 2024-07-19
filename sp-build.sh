@@ -1,8 +1,8 @@
 #/bin/bash
 
 STATE_DISK_SIZE=100
-VM_MEMORY=16
-VM_CPU=4
+VM_MEMORY=32
+VM_CPU=12
 
 export DISTRO="ubuntu"
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
@@ -29,7 +29,7 @@ script -fec 'sudo -E USE_DOCKER=true CONFIDENTIAL_GUEST=yes MEASURED_ROOTFS=yes 
 popd
 
 pushd "${SCRIPT_DIR}/tools/osbuilder/image-builder"
-script -fec 'sudo -E USE_DOCKER=true MEASURED_ROOTFS=yes ./image_builder.sh "${ROOTFS_DIR}"'
+script -fec 'sudo -E USE_DOCKER=true MEASURED_ROOTFS=yes ./image_builder.sh -r 5000 "${ROOTFS_DIR}"'
 popd
 
 cp "${SCRIPT_DIR}/tools/osbuilder/image-builder/kata-containers.img" "${SCRIPT_DIR}/build/rootfs.img"
@@ -45,6 +45,7 @@ PWD_COMMAND='SCRIPT_DIR=$( cd "$( dirname "$0" )" && pwd )'
 QEMU_COMMAND="
 qemu-system-x86_64 \
     -accel kvm \
+    -cpu host \
     -drive file=\$SCRIPT_DIR/rootfs.img,if=virtio,format=raw \
     -drive file=\$SCRIPT_DIR/state.qcow2,if=virtio,format=qcow2 \
     -m ${VM_MEMORY}G \

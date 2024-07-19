@@ -25,7 +25,7 @@ wget "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64
 popd
 
 pushd "${SCRIPT_DIR}/tools/osbuilder/rootfs-builder"
-script -fec 'sudo -E USE_DOCKER=true CONFIDENTIAL_GUEST=yes MEASURED_ROOTFS=yes EXTRA_PKGS="openssh-server netplan.io curl htop ubuntu-minimal dmsetup ca-certificates" ./rootfs.sh "${DISTRO}"'
+script -fec 'sudo -E USE_DOCKER=true CONFIDENTIAL_GUEST=yes MEASURED_ROOTFS=yes EXTRA_PKGS="openssh-server netplan.io curl htop open-iscsi ubuntu-minimal dmsetup ca-certificates" ./rootfs.sh "${DISTRO}"'
 popd
 
 pushd "${SCRIPT_DIR}/tools/osbuilder/image-builder"

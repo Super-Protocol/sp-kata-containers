@@ -9,9 +9,7 @@ disable:
   - rke2-ingress-nginx
   - rke2-metrics-server
 cni:
-# - none
-# - cilium
-  - flannel
+  - cilium
 EOF
 cat > "/etc/rancher/rke2/registries.yaml" <<EOF
 configs:
@@ -73,8 +71,6 @@ EOF
 
 # debug
 echo "stty cols 180 rows 50" >> /etc/profile
-
-#update-alternatives --set iptables /usr/sbin/iptables-legacy
 
 cat /etc/rancher/rke2/rke2-pss.yaml
 

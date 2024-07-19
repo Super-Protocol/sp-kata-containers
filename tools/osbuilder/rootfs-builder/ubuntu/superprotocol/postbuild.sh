@@ -30,6 +30,8 @@ run_postbuild() {
 	cp ${script_dir}/rke.sh ${rootfs_dir}
 	chroot "$rootfs_dir" /bin/bash "/rke.sh"
 	rm -f ${rootfs_dir}/rke.sh
+	mdkdir -p "${rootfs_dir}/var/lib/rancher/rke2/server/manifests/"
+	cp ${script_dir}/k8s_infra.yaml "${rootfs_dir}/var/lib/rancher/rke2/server/manifests/"
 	set +x
 
 	umount ${rootfs_dir}/dev/pts

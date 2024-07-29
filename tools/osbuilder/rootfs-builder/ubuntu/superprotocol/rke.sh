@@ -42,9 +42,8 @@ mkdir -p "/etc/rancher/node"
 LC_ALL=C tr -dc '[:alpha:][:digit:]' </dev/urandom | head -c 32 > /etc/rancher/node/password
 
 curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL="v1.28.11+rke2r1" sh -
-systemctl enable rke2-server.service && systemctl start rke2-server.service
+systemctl enable rke2-server.service
 
-mkdir -p "/etc/rancher/rke2/"
 mkdir -p "/var/lib/rancher/rke2"
 
 #cat > "/etc/rancher/rke2/rke2-pss.yaml" <<EOF
@@ -71,8 +70,6 @@ EOF
 
 # debug
 echo "stty cols 180 rows 50" >> /etc/profile
-
-cat /etc/rancher/rke2/rke2-pss.yaml
 
 echo "export KUBECONFIG=/var/lib/rancher/rke2/rke2.yaml" >>  /etc/profile
 echo "alias k='/var/lib/rancher/rke2/bin/kubectl'" >>  /etc/profile

@@ -1,6 +1,9 @@
 #!/bin/bash
 set -x
 
+SUPER_SCRIPT_DIR="/etc/super/"
+mkdir -p "$SUPER_SCRIPT_DIR"
+
 mkdir -p "/etc/rancher/rke2"
 cat > "/etc/rancher/rke2/config.yaml" <<EOF
 kubelet-arg:
@@ -56,7 +59,7 @@ systemctl enable rke2-server.service
 mkdir -p "/var/lib/rancher/rke2"
 
 #cat > "/etc/rancher/rke2/rke2-pss.yaml" <<EOF
-cat > "/var/lib/rancher/rke2/rke2-pss.yaml" <<EOF
+cat > "$SUPER_SCRIPT_DIR/var/lib/rancher/rke2/rke2-pss.yaml" <<EOF
 apiVersion: apiserver.config.k8s.io/v1
 kind: AdmissionConfiguration
 plugins:
@@ -75,6 +78,8 @@ EOF
 
 cat >> /usr/local/lib/systemd/system/rke2-server.env <<EOF
 RKE2_KUBECONFIG_OUTPUT=/var/lib/rancher/rke2/rke2.yaml
+RKE2_POD_SECURITY_ADMISSION_CONFIG_FILE=/var/lib/rancher/rke2/rke2-pss.yaml
+EOF
 
 # fix problem with PVC multi-attach https://longhorn.io/kb/troubleshooting-volume-with-multipath/
 cat >> /etc/multipath.conf <<EOF
@@ -83,6 +88,13 @@ blacklist {
 }
 EOF
 
+
+cat > /etc/resolv.conf <<EOF
+nameserver 127.0.0.53
+nameserver 1.1.1.1
+nameserver 8.8.8.8
+options edns0 trust-ad
+search .
 EOF
 
 # debug

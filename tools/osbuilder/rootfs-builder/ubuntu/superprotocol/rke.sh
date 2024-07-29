@@ -75,6 +75,14 @@ EOF
 
 cat >> /usr/local/lib/systemd/system/rke2-server.env <<EOF
 RKE2_KUBECONFIG_OUTPUT=/var/lib/rancher/rke2/rke2.yaml
+
+# fix problem with PVC multi-attach https://longhorn.io/kb/troubleshooting-volume-with-multipath/
+cat >> /etc/multipath.conf <<EOF
+blacklist {
+    devnode "^sd[a-z0-9]+"
+}
+EOF
+
 EOF
 
 # debug

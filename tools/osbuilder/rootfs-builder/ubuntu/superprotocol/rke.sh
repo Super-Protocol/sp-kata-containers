@@ -37,6 +37,15 @@ cat > "/etc/cni/net.d/05-cilium.conflist" <<EOF
 }
 EOF
 
+mkdir -p "/etc/sysctl.d/"
+cat > "/etc/sysctl.d/99-zzz-override_cilium.conf" <<EOF
+# Disable rp_filter on Cilium interfaces since it may cause mangled packets to be dropped
+-net.ipv4.conf.lxc*.rp_filter = 0
+-net.ipv4.conf.cilium_*.rp_filter = 0
+# The kernel uses max(conf.all, conf.{dev}) as its value, so we need to set .all. to 0 as well.
+# Otherwise it will overrule the device specific settings.
+net.ipv4.conf.all.rp_filter = 0
+EOF
 
 mkdir -p "/etc/rancher/node"
 LC_ALL=C tr -dc '[:alpha:][:digit:]' </dev/urandom | head -c 32 > /etc/rancher/node/password

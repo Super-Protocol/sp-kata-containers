@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x
 
-SUPER_SCRIPT_DIR="/etc/super/"
+SUPER_SCRIPT_DIR="/etc/super"
 mkdir -p "$SUPER_SCRIPT_DIR"
 
 mkdir -p "/etc/rancher/rke2"
@@ -57,7 +57,7 @@ curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL="v1.28.11+rke2r1" sh -
 systemctl enable rke2-server.service
 
 mkdir -p "/var/lib/rancher/rke2"
-
+mkdir -p "$SUPER_SCRIPT_DIR/var/lib/rancher/rke2"
 #cat > "/etc/rancher/rke2/rke2-pss.yaml" <<EOF
 cat > "$SUPER_SCRIPT_DIR/var/lib/rancher/rke2/rke2-pss.yaml" <<EOF
 apiVersion: apiserver.config.k8s.io/v1
@@ -88,6 +88,9 @@ blacklist {
 }
 EOF
 
+# copy iscsi configs, cause this partition will be remounted with empty dir
+mkdir -p "$SUPER_SCRIPT_DIR/etc/iscsi/"
+cp -r "/etc/iscsi/" "$SUPER_SCRIPT_DIR/etc/"
 
 cat > /etc/resolv.conf <<EOF
 nameserver 127.0.0.53

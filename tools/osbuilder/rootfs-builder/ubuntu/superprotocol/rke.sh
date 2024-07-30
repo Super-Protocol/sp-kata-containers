@@ -76,6 +76,57 @@ plugins:
       namespaces: []
 EOF
 
+mkdir -p "$SUPER_SCRIPT_DIR/var/lib/rancher/rke2/agent/etc/containerd/"
+cat > "$SUPER_SCRIPT_DIR/var/lib/rancher/rke2/agent/etc/containerd/config.toml.tmpl" <<EOF
+version = 2
+[plugins."io.containerd.internal.v1.opt"]
+  path = "/var/lib/rancher/rke2/agent/containerd"
+[plugins."io.containerd.grpc.v1.cri"]
+  stream_server_address = "127.0.0.1"
+  stream_server_port = "10010"
+  enable_selinux = false
+  enable_unprivileged_ports = true
+  enable_unprivileged_icmp = true
+  sandbox_image = "index.docker.io/rancher/mirrored-pause:3.6"
+  [plugins."io.containerd.grpc.v1.cri".registry]
+    [plugins."io.containerd.grpc.v1.cri".registry.mirrors]
+      [plugins."io.containerd.grpc.v1.cri".registry.mirrors."registry.superprotocol.ltd:32443"]
+        endpoint = ["https://registry.superprotocol.ltd:32443"]
+      [plugins."io.containerd.grpc.v1.cri".registry.configs."registry.superprotocol.ltd:32443".tls]
+        insecure_skip_verify = true
+  [plugins."io.containerd.grpc.v1.cri".containerd]
+    snapshotter = "overlayfs"
+    disable_snapshot_annotations = true
+    default_runtime_name = "nvidia"
+    [plugins."io.containerd.grpc.v1.cri".containerd.runtimes]
+      [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+        runtime_type = "io.containerd.runc.v2"
+        [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
+          SystemdCgroup = true
+      [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia]
+        privileged_without_host_devices = false
+        runtime_engine = ""
+        runtime_root = ""
+        runtime_type = "io.containerd.runc.v2"
+        [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia.options]
+          BinaryName = "/usr/local/nvidia/toolkit/nvidia-container-runtime"
+          SystemdCgroup = true
+      [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia-cdi]
+        privileged_without_host_devices = false
+        runtime_engine = ""
+        runtime_root = ""
+        runtime_type = "io.containerd.runc.v2"
+        [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia-cdi.options]
+          BinaryName = "/usr/local/nvidia/toolkit/nvidia-container-runtime.cdi"
+      [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia-legacy]
+        privileged_without_host_devices = false
+        runtime_engine = ""
+        runtime_root = ""
+        runtime_type = "io.containerd.runc.v2"
+        [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia-legacy.options]
+          BinaryName = "/usr/local/nvidia/toolkit/nvidia-container-runtime.legacy"
+EOF
+
 cat >> /usr/local/lib/systemd/system/rke2-server.env <<EOF
 RKE2_KUBECONFIG_OUTPUT=/var/lib/rancher/rke2/rke2.yaml
 RKE2_POD_SECURITY_ADMISSION_CONFIG_FILE=/var/lib/rancher/rke2/rke2-pss.yaml

@@ -12,6 +12,12 @@ declare -A files=(
 # Check and copy files if they do not exist
 for src in "${!files[@]}"; do
     dest="${files[$src]}"
+    dest_dir=$(dirname "$dest")
+    # Create destination directory if it does not exist
+    if [ ! -d "$dest_dir" ]; then
+        mkdir -p "$dest_dir"
+    fi
+    # Copy file if it does not exist
     if [ ! -f "$dest" ]; then
         cp -v "$src" "$dest"
     fi

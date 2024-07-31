@@ -143,6 +143,8 @@ EOF
 mkdir -p "$SUPER_SCRIPT_DIR/etc/iscsi/"
 cp -r "/etc/iscsi/" "$SUPER_SCRIPT_DIR/etc/"
 
+mkdir -p /etc/kubernetes
+
 cat > /etc/resolv.conf <<EOF
 nameserver 127.0.0.53
 nameserver 1.1.1.1

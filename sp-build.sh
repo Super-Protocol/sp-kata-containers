@@ -42,18 +42,31 @@ qemu-img create -f qcow2 state.qcow2 ${STATE_DISK_SIZE}G
 ROOT_HASH=$(grep 'Root hash' root_hash.txt | awk '{print $3}')
 
 PWD_COMMAND='SCRIPT_DIR=$( cd "$( dirname "$0" )" && pwd )'
+NVIDIA_PASSTHROUGH=" -device pcie-root-port,id=pci.1,bus=pcie.0 -device \
+                     vfio-pci,host=2a:00.0,bus=pci.1 -fw_cfg name=opt/ovmf/X-PciMmio64,string=262144"
 QEMU_COMMAND="
 qemu-system-x86_64 \
-    -accel kvm \
-    -cpu host \
-    -drive file=\$SCRIPT_DIR/rootfs.img,if=virtio,format=raw \
-    -drive file=\$SCRIPT_DIR/state.qcow2,if=virtio,format=qcow2 \
-    -m ${VM_MEMORY}G \
-    -smp ${VM_CPU} \
-    -nographic \
-    -kernel \$SCRIPT_DIR/vmlinuz \
-    -append \"root=/dev/vda1 rw console=ttyS0 systemd.log_level=trace systemd.log_target=log rootfs_verity.scheme=qwedm-verity rootfs_verity.hash=${ROOT_HASH}\" \
-    -device virtio-net-pci,netdev=nic0_td -netdev user,id=nic0_td,hostfwd=tcp::2222-:22"
+-accel kvm \
+-append \"root=/dev/vda1 rw console=ttyS0 systemd.log_level=trace systemd.log_target=log rootfs_verity.scheme=qwedm-verity rootfs_verity.hash=${ROOT_HASH}\" \
+-bios /usr/share/qemu/OVMF.fd \
+-chardev stdio,id=mux,mux=on,logfile=\$SCRIPT_DIR/vm_log_\$(date +\"%FT%H%M\").log \
+-cpu host,-kvm-steal-time,pmu=off \
+${NVIDIA_PASSTHROUGH} \
+-device vhost-vsock-pci,guest-cid=3 \
+-device virtio-net-pci,netdev=nic0_td -netdev user,id=nic0_td,hostfwd=tcp::2222-:22 \
+-drive file=\$SCRIPT_DIR/rootfs.img,if=virtio,format=raw \
+-drive file=\$SCRIPT_DIR/state.qcow2,if=virtio,format=qcow2 \
+-kernel \$SCRIPT_DIR/vmlinuz \
+-smp ${VM_CPU} -m ${VM_MEMORY}G -vga none\
+-machine q35,kernel_irqchip=split,confidential-guest-support=tdx,memory-backend=ram1 \
+-monitor chardev:mux -serial chardev:mux -nographic \
+-monitor pty \
+-monitor telnet:127.0.0.1:9001,server,nowait \
+-name process=tdxvm,debug-threads=on \
+-no-hpet -nodefaults -nographic \
+-object memory-backend-memfd-private,id=ram1,size=${VM_MEMORY}G \
+-object tdx-guest,sept-ve-disable=on,id=tdx \
+"
 
 echo "${PWD_COMMAND}" > run_vm.sh
 echo "${QEMU_COMMAND}" >> run_vm.sh

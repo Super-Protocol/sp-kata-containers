@@ -1,6 +1,6 @@
 #/bin/bash
 
-STATE_DISK_SIZE=100
+STATE_DISK_SIZE=300
 VM_MEMORY=32
 VM_CPU=12
 
@@ -29,7 +29,7 @@ script -fec 'sudo -E USE_DOCKER=true CONFIDENTIAL_GUEST=yes MEASURED_ROOTFS=yes 
 popd
 
 pushd "${SCRIPT_DIR}/tools/osbuilder/image-builder"
-script -fec 'sudo -E USE_DOCKER=true MEASURED_ROOTFS=yes ./image_builder.sh -r 5000 "${ROOTFS_DIR}"'
+script -fec 'sudo -E USE_DOCKER=true MEASURED_ROOTFS=yes ./image_builder.sh "${ROOTFS_DIR}"'
 popd
 
 cp "${SCRIPT_DIR}/tools/osbuilder/image-builder/kata-containers.img" "${SCRIPT_DIR}/build/rootfs.img"
@@ -47,7 +47,7 @@ NVIDIA_PASSTHROUGH=" -device pcie-root-port,id=pci.1,bus=pcie.0 -device \
 QEMU_COMMAND="
 qemu-system-x86_64 \
 -accel kvm \
--append \"root=/dev/vda1 rw console=ttyS0 systemd.log_level=trace systemd.log_target=log rootfs_verity.scheme=qwedm-verity rootfs_verity.hash=${ROOT_HASH}\" \
+-append \"root=/dev/vda1 console=ttyS0 systemd.log_level=trace systemd.log_target=log rootfs_verity.scheme=dm-verity rootfs_verity.hash=${ROOT_HASH}\" \
 -bios /usr/share/qemu/OVMF.fd \
 -chardev stdio,id=mux,mux=on,logfile=\$SCRIPT_DIR/vm_log_\$(date +\"%FT%H%M\").log \
 -cpu host,-kvm-steal-time,pmu=off \
@@ -57,7 +57,7 @@ ${NVIDIA_PASSTHROUGH} \
 -drive file=\$SCRIPT_DIR/rootfs.img,if=virtio,format=raw \
 -drive file=\$SCRIPT_DIR/state.qcow2,if=virtio,format=qcow2 \
 -kernel \$SCRIPT_DIR/vmlinuz \
--smp ${VM_CPU} -m ${VM_MEMORY}G -vga none\
+-smp ${VM_CPU} -m ${VM_MEMORY}G -vga none \
 -machine q35,kernel_irqchip=split,confidential-guest-support=tdx,memory-backend=ram1 \
 -monitor chardev:mux -serial chardev:mux -nographic \
 -monitor pty \

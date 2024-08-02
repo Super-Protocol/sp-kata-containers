@@ -54,8 +54,9 @@ spec:
       - name: loadbalance
       - name: hosts
         configBlock: |-
-          10.0.2.15  registry.superprotocol.ltd
+          10.0.2.15  registry.dev.superprotocol.ltd
           fallthrough
+
 
 ---
 

@@ -109,7 +109,7 @@ version = 2
         runtime_root = ""
         runtime_type = "io.containerd.runc.v2"
         [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia.options]
-          BinaryName = "/usr/local/nvidia/toolkit/nvidia-container-runtime"
+          BinaryName = "/opt/nvidia/toolkit/nvidia-container-runtime"
           SystemdCgroup = true
       [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia-cdi]
         privileged_without_host_devices = false
@@ -117,14 +117,14 @@ version = 2
         runtime_root = ""
         runtime_type = "io.containerd.runc.v2"
         [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia-cdi.options]
-          BinaryName = "/usr/local/nvidia/toolkit/nvidia-container-runtime.cdi"
+          BinaryName = "/opt/nvidia/toolkit/nvidia-container-runtime.cdi"
       [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia-legacy]
         privileged_without_host_devices = false
         runtime_engine = ""
         runtime_root = ""
         runtime_type = "io.containerd.runc.v2"
         [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia-legacy.options]
-          BinaryName = "/usr/local/nvidia/toolkit/nvidia-container-runtime.legacy"
+          BinaryName = "/opt/nvidia/toolkit/nvidia-container-runtime.legacy"
 EOF
 
 cat >> /usr/local/lib/systemd/system/rke2-server.env <<EOF

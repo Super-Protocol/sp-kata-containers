@@ -1,6 +1,7 @@
 #!/bin/bash
 set -x
 
+SUPER_REGISTRY_HOST="registry.dev.superprotocol.ltd"
 SUPER_SCRIPT_DIR="/etc/super"
 mkdir -p "$SUPER_SCRIPT_DIR"
 
@@ -16,7 +17,7 @@ cni:
 EOF
 cat > "/etc/rancher/rke2/registries.yaml" <<EOF
 configs:
-  "registry.superprotocol.ltd:32443":
+  "$SUPER_REGISTRY_HOST:32443":
     tls:
       insecure_skip_verify: true
 EOF
@@ -90,9 +91,9 @@ version = 2
   sandbox_image = "index.docker.io/rancher/mirrored-pause:3.6"
   [plugins."io.containerd.grpc.v1.cri".registry]
     [plugins."io.containerd.grpc.v1.cri".registry.mirrors]
-      [plugins."io.containerd.grpc.v1.cri".registry.mirrors."registry.superprotocol.ltd:32443"]
-        endpoint = ["https://registry.superprotocol.ltd:32443"]
-      [plugins."io.containerd.grpc.v1.cri".registry.configs."registry.superprotocol.ltd:32443".tls]
+      [plugins."io.containerd.grpc.v1.cri".registry.mirrors."$SUPER_REGISTRY_HOST:32443"]
+        endpoint = ["https://$SUPER_REGISTRY_HOST:32443"]
+      [plugins."io.containerd.grpc.v1.cri".registry.configs."$SUPER_REGISTRY_HOST:32443".tls]
         insecure_skip_verify = true
   [plugins."io.containerd.grpc.v1.cri".containerd]
     snapshotter = "overlayfs"
@@ -151,6 +152,10 @@ nameserver 1.1.1.1
 nameserver 8.8.8.8
 options edns0 trust-ad
 search .
+EOF
+
+cat >> /etc/hosts <<EOF
+10.0.2.15	$SUPER_REGISTRY_HOST
 EOF
 
 # debug

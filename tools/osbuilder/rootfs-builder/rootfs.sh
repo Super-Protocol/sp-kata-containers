@@ -35,6 +35,7 @@ AGENT_TARBALL=${AGENT_TARBALL:-""}
 COCO_GUEST_COMPONENTS_TARBALL=${COCO_GUEST_COMPONENTS_TARBALL:-""}
 CONFIDENTIAL_GUEST="${CONFIDENTIAL_GUEST:-no}"
 PAUSE_IMAGE_TARBALL=${PAUSE_IMAGE_TARBALL:-""}
+PROVIDER_CONFIG_DST=${PROVIDER_CONFIG_DST:-""}
 
 lib_file="${script_dir}/../scripts/lib.sh"
 source "$lib_file"
@@ -517,6 +518,7 @@ build_rootfs_distro()
 			--env HOME="/root" \
 			--env AGENT_POLICY="${AGENT_POLICY}" \
 			--env CONFIDENTIAL_GUEST="${CONFIDENTIAL_GUEST}" \
+			--env PROVIDER_CONFIG_DST="${PROVIDER_CONFIG_DST}" \
 			-v "${repo_dir}":"/kata-containers" \
 			-v "${ROOTFS_DIR}":"/rootfs" \
 			-v "${script_dir}/../scripts":"/scripts" \

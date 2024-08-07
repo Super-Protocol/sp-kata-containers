@@ -25,7 +25,7 @@ wget "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64
 popd
 
 pushd "${SCRIPT_DIR}/tools/osbuilder/rootfs-builder"
-script -fec 'sudo -E USE_DOCKER=true CONFIDENTIAL_GUEST=yes MEASURED_ROOTFS=yes EXTRA_PKGS="openssh-server netplan.io curl htop open-iscsi ubuntu-minimal dmsetup ca-certificates" ./rootfs.sh "${DISTRO}"'
+script -fec 'sudo -E USE_DOCKER=true PROVIDER_CONFIG_DST="${PROVIDER_CONFIG_DST}" CONFIDENTIAL_GUEST=yes MEASURED_ROOTFS=yes EXTRA_PKGS="openssh-server netplan.io curl htop open-iscsi ubuntu-minimal dmsetup ca-certificates" ./rootfs.sh "${DISTRO}"'
 popd
 
 pushd "${SCRIPT_DIR}/tools/osbuilder/image-builder"
@@ -61,12 +61,15 @@ ${NVIDIA_PASSTHROUGH} \
 -machine q35,kernel_irqchip=split,confidential-guest-support=tdx,memory-backend=ram1 \
 -monitor chardev:mux -serial chardev:mux -nographic \
 -monitor pty \
--monitor telnet:127.0.0.1:9001,server,nowait \
 -name process=tdxvm,debug-threads=on \
 -no-hpet -nodefaults -nographic \
 -object memory-backend-memfd-private,id=ram1,size=${VM_MEMORY}G \
 -object tdx-guest,sept-ve-disable=on,id=tdx \
 "
+if [ -n "${PROVIDER_CONFIG_SRC}" ] && [ -n "${PROVIDER_CONFIG_DST}" ]; then
+    QEMU_COMMAND+=" -fsdev local,security_model=passthrough,id=fsdev0,path=${PROVIDER_CONFIG_SRC} \
+                  -device virtio-9p-pci,fsdev=fsdev0,mount_tag=sharedfolder"
+fi
 
 echo "${PWD_COMMAND}" > run_vm.sh
 echo "${QEMU_COMMAND}" >> run_vm.sh

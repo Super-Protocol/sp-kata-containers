@@ -7,6 +7,11 @@ run_postbuild() {
 
 	cp ${script_dir}/fstab ${rootfs_dir}/etc
 
+	if [[ -n "${PROVIDER_CONFIG_DST}" ]]; then
+		mkdir -p "${rootfs_dir}/${PROVIDER_CONFIG_DST}"
+		echo "sharedfolder   ${PROVIDER_CONFIG_DST}  9p   ro,defaults   0   0" >> "${rootfs_dir}/etc/fstab"
+	fi
+
 	cp ${script_dir}/state_disk_mount.service ${rootfs_dir}/etc/systemd/system
 	cp ${script_dir}/state_disk_mount.sh ${rootfs_dir}/usr/local/bin
 	ln -s /etc/systemd/system/state_disk_mount.service "$rootfs_dir/etc/systemd/system/multi-user.target.wants/state_disk_mount.service"

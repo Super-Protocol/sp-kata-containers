@@ -7,6 +7,8 @@ VM_CPU=12
 export DISTRO="ubuntu"
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 export ROOTFS_DIR="${SCRIPT_DIR}/build/rootfs"
+#export PROVIDER_CONFIG_DST="/provider_config"
+#PROVIDER_CONFIG_SRC="/etc"
 
 KERNEL_NAME=nvidia-gpu-confidential
 

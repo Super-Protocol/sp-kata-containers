@@ -1,6 +1,7 @@
 name: Build SuperProtocol OS image
 on:
   workflow_call:
+  workflow_dispatch:
     inputs:
       debug:
         required: false

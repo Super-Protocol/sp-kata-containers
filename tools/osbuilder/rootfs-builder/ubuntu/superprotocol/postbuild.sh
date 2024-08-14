@@ -12,6 +12,8 @@ run_postbuild() {
 		echo "sharedfolder   ${PROVIDER_CONFIG_DST}  9p   ro,defaults,_netdev   0   0" >> "${rootfs_dir}/etc/fstab"
 	fi
 
+	cp ${script_dir}/tdx-attest.conf ${rootfs_dir}/etc
+
 	cp ${script_dir}/state_disk_mount.service ${rootfs_dir}/etc/systemd/system
 	cp ${script_dir}/state_disk_mount.sh ${rootfs_dir}/usr/local/bin
 	ln -s /etc/systemd/system/state_disk_mount.service "$rootfs_dir/etc/systemd/system/multi-user.target.wants/state_disk_mount.service"

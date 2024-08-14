@@ -45,10 +45,10 @@ jobs:
           ls -la .
           sudo apt-get update
           sudo apt-get -y install curl
-          ./sp-build.sh
+          sudo ./sp-build.sh
           build_dir=$(readlink -f build)
           ls -la $build_dir
-          rm -rf $build_dir/rootfs
+          sudo rm -rf $build_dir/rootfs
         env:
           PUSH_TO_REGISTRY: ${{ inputs.push-to-registry }}
           ARTEFACT_REGISTRY: ghcr.io

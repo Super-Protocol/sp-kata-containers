@@ -9,7 +9,7 @@ run_postbuild() {
 
 	if [[ -n "${PROVIDER_CONFIG_DST}" ]]; then
 		mkdir -p "${rootfs_dir}/${PROVIDER_CONFIG_DST}"
-		echo "sharedfolder   ${PROVIDER_CONFIG_DST}  9p   ro,defaults   0   0" >> "${rootfs_dir}/etc/fstab"
+		echo "sharedfolder   ${PROVIDER_CONFIG_DST}  9p   ro,defaults,_netdev   0   0" >> "${rootfs_dir}/etc/fstab"
 	fi
 
 	cp ${script_dir}/state_disk_mount.service ${rootfs_dir}/etc/systemd/system

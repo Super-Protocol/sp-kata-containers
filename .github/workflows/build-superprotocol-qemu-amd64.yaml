@@ -45,7 +45,7 @@ jobs:
           ls -la .
           sudo apt-get update
           sudo apt-get -y install curl
-          sudo ./sp-build.sh
+          sudo bash -c ./sp-build.sh
           build_dir=$(readlink -f build)
           ls -la $build_dir
           sudo rm -rf $build_dir/rootfs

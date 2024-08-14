@@ -39,7 +39,7 @@ cp "${SCRIPT_DIR}/tools/osbuilder/image-builder/root_hash.txt" "${SCRIPT_DIR}/bu
 cp -L "${SCRIPT_DIR}/tools/packaging/kata-deploy/local-build/build/kernel-${KERNEL_NAME}/destdir/opt/kata/share/kata-containers/vmlinuz-${KERNEL_NAME}.container" "${SCRIPT_DIR}/build/vmlinuz"
 
 pushd "${SCRIPT_DIR}/build"
-qemu-img create -f qcow2 state.qcow2 ${STATE_DISK_SIZE}G
+#qemu-img create -f qcow2 state.qcow2 ${STATE_DISK_SIZE}G
 
 ROOT_HASH=$(grep 'Root hash' root_hash.txt | awk '{print $3}')
 

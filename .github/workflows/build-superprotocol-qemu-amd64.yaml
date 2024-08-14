@@ -18,7 +18,7 @@ on:
 
 jobs:
   build-asset:
-    runs-on: arc-self-hosted
+    runs-on: ubuntu-latest
 
     steps:
 

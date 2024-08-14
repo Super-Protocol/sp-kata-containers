@@ -15,10 +15,17 @@ on:
         required: false
         type: string
         default: ""
+      runs-on:
+        required: true
+        type: choice
+        description: github runner for build
+        options:
+        - arc-self-hosted
+        - ubuntu-latest
 
 jobs:
   build-asset:
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs-on }}
 
     steps:
 

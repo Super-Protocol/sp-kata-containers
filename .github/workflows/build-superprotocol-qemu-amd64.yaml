@@ -36,6 +36,7 @@ jobs:
       - name: Build
         run: |
           ls -la .
+          apt-get -y install curl qemu-utils
           ./sp-build.sh
           build_dir=$(readlink -f build)
           ls -la $build_dir

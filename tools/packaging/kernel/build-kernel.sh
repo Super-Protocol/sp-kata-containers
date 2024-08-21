@@ -495,7 +495,13 @@ build_kernel_headers() {
 	pushd "${kernel_path}" >>/dev/null
 
 	if [ "$linux_headers" == "deb" ]; then
-		export KBUILD_BUILD_USER="${USER}"
+		export KBUILD_BUILD_USER="SuperProtocol"
+		export KBUILD_BUILD_HOST="SuperProtocol"
+		export DEB_BUILD_OPTIONS="reproducible=+all"
+		export SOURCE_DATE_EPOCH="1724148865"
+		export KBUILD_BUILD_TIMESTAMP="1724148865"
+		fixed_date=$(date -R -d @${SOURCE_DATE_EPOCH})
+		sed -i "s/-- \$maintainer  \$(date -R)/-- \$maintainer  $fixed_date/" scripts/package/mkdebian
 		make -j $(nproc ${CI:+--ignore 1}) bindeb-pkg ARCH="${arch_target}"
 	fi
 	if [ "$linux_headers" == "rpm" ]; then

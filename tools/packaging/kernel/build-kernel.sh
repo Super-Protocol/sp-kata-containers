@@ -465,6 +465,11 @@ setup_kernel() {
 }
 
 build_kernel() {
+	export KBUILD_BUILD_USER="SuperProtocol"
+	export KBUILD_BUILD_HOST="SuperProtocol"
+	export DEB_BUILD_OPTIONS="reproducible=+all"
+	export SOURCE_DATE_EPOCH="1724148865"
+	export KBUILD_BUILD_TIMESTAMP="1724148865"
 	local kernel_path=${1:-}
 	[ -n "${kernel_path}" ] || die "kernel_path not provided"
 	[ -d "${kernel_path}" ] || die "path to kernel does not exist, use ${script_name} setup"

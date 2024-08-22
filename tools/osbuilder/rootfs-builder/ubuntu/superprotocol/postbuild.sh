@@ -12,6 +12,9 @@ run_postbuild() {
 	cp ${script_dir}/gen_ssh_keys.sh "${rootfs_dir}/etc/ssh"
 	sed -i '/ExecStartPre=/i ExecStartPre=/etc/ssh/gen_ssh_keys.sh' "${rootfs_dir}/usr/lib/systemd/system/ssh.service"
 
+	# rm initiatorname.iscsi and generate it in runtime
+	rm -f "${rootfs_dir}/etc/iscsi/initiatorname.iscsi"
+
 	mkdir -p "${rootfs_dir}/etc/netplan"
 	cp ${script_dir}/01-netplan.yaml ${rootfs_dir}/etc/netplan
 

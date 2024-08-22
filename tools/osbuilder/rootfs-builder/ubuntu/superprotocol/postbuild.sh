@@ -1,6 +1,16 @@
 run_postbuild() {
 	local rootfs_dir=$1
 	local script_dir=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
+	# rm ssh keys and generate it in runtime
+	find "${rootfs_dir}/etc/ssh" -name "ssh_host_*" -exec rm -v {} +
+	sed -i -e 's|#HostKey /etc/ssh/ssh_host_rsa_key|HostKey /etc/ssh/keys/ssh_host_rsa_key|' \
+	   -e 's|#HostKey /etc/ssh/ssh_host_ecdsa_key|HostKey /etc/ssh/keys/ssh_host_ecdsa_key|' \
+	   -e 's|#HostKey /etc/ssh/ssh_host_ed25519_key|HostKey /etc/ssh/keys/ssh_host_ed25519_key|' \
+	   "${rootfs_dir}/etc/ssh/sshd_config"
+
+	mkdir -p "${rootfs_dir}/etc/ssh/keys"
+	cp ${script_dir}/gen_ssh_keys.sh "${rootfs_dir}/etc/ssh"
+	sed -i '/ExecStartPre=/i ExecStartPre=/etc/ssh/gen_ssh_keys.sh' "${rootfs_dir}/usr/lib/systemd/system/ssh.service"
 
 	mkdir -p "${rootfs_dir}/etc/netplan"
 	cp ${script_dir}/01-netplan.yaml ${rootfs_dir}/etc/netplan

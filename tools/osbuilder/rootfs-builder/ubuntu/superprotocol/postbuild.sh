@@ -1,6 +1,7 @@
 run_postbuild() {
 	local rootfs_dir=$1
 	local script_dir=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
+
 	# rm ssh keys and generate it in runtime
 	find "${rootfs_dir}/etc/ssh" -name "ssh_host_*" -exec rm -v {} +
 	sed -i -e 's|#HostKey /etc/ssh/ssh_host_rsa_key|HostKey /etc/ssh/keys/ssh_host_rsa_key|' \
@@ -14,6 +15,9 @@ run_postbuild() {
 
 	# rm initiatorname.iscsi and generate it in runtime
 	rm -f "${rootfs_dir}/etc/iscsi/initiatorname.iscsi"
+
+	#machine-id will be created in runtime by systemd
+	rm "${rootfs_dir}/etc/machine-id"
 
 	mkdir -p "${rootfs_dir}/etc/netplan"
 	cp ${script_dir}/01-netplan.yaml ${rootfs_dir}/etc/netplan

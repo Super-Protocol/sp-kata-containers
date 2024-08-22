@@ -742,8 +742,8 @@ EOF
 	info "Create /etc/resolv.conf file in rootfs if not exist"
 	touch "$dns_file"
 
-	info "Creating summary file"
-	create_summary_file "${ROOTFS_DIR}"
+	#info "Creating summary file"
+	#create_summary_file "${ROOTFS_DIR}"
 }
 
 parse_arguments()

@@ -1,6 +1,9 @@
 #!/bin/bash
 set -x
 
+RND_SEED=$(LC_ALL=C tr -dc '[:alnum:]' < /dev/urandom | head -c 6)
+NODE_NAME="sp-tdx-h100-vm-$RND_SEED"
+
 SUPER_REGISTRY_HOST="registry.dev.superprotocol.ltd"
 SUPER_SCRIPT_DIR="/etc/super"
 mkdir -p "$SUPER_SCRIPT_DIR"
@@ -14,6 +17,8 @@ disable:
   - rke2-metrics-server
 cni:
   - cilium
+node-label:
+  - node.tee.superprotocol.com/name=$NODE_NAME
 EOF
 cat > "/etc/rancher/rke2/registries.yaml" <<EOF
 configs:

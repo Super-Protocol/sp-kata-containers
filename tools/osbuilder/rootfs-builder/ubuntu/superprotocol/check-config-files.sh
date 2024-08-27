@@ -40,3 +40,28 @@ if [ ! -e $NAMEFILE ] && [ -z "$2" ] ; then
         exit 1;
     fi
 fi
+
+RND_SEED=$(LC_ALL=C tr -dc '[:alnum:]' < /dev/urandom | head -c 6)
+NODE_NAME="sp-tdx-h100-vm-$RND_SEED"
+
+mkdir -p "/etc/rancher/rke2"
+cat > "/etc/rancher/rke2/config.yaml" <<EOF
+kubelet-arg:
+  - max-pods=256
+disable:
+  - rke2-ingress-nginx
+  - rke2-metrics-server
+cni:
+  - cilium
+node-label:
+  - node.tee.superprotocol.com/name=$NODE_NAME
+EOF
+cat > "/etc/rancher/rke2/registries.yaml" <<EOF
+configs:
+  "$SUPER_REGISTRY_HOST:32443":
+    tls:
+      insecure_skip_verify: true
+EOF
+
+mkdir -p "/etc/rancher/node"
+LC_ALL=C tr -dc '[:alpha:][:digit:]' </dev/urandom | head -c 32 > /etc/rancher/node/password

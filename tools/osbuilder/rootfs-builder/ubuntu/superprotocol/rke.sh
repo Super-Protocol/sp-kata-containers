@@ -1,31 +1,13 @@
 #!/bin/bash
 set -x
 
-RND_SEED=$(LC_ALL=C tr -dc '[:alnum:]' < /dev/urandom | head -c 6)
-NODE_NAME="sp-tdx-h100-vm-$RND_SEED"
-
 SUPER_REGISTRY_HOST="registry.dev.superprotocol.ltd"
+sed -i "/^#!\/bin\/bash/a SUPER_REGISTRY_HOST=\"$SUPER_REGISTRY_HOST\"" /usr/local/bin/check-config-files.sh
+
 SUPER_SCRIPT_DIR="/etc/super"
 mkdir -p "$SUPER_SCRIPT_DIR"
 
-mkdir -p "/etc/rancher/rke2"
-cat > "/etc/rancher/rke2/config.yaml" <<EOF
-kubelet-arg:
-  - max-pods=256
-disable:
-  - rke2-ingress-nginx
-  - rke2-metrics-server
-cni:
-  - cilium
-node-label:
-  - node.tee.superprotocol.com/name=$NODE_NAME
-EOF
-cat > "/etc/rancher/rke2/registries.yaml" <<EOF
-configs:
-  "$SUPER_REGISTRY_HOST:32443":
-    tls:
-      insecure_skip_verify: true
-EOF
+mkdir -p "/etc/rancher"
 
 mkdir -p "/etc/cni/net.d"
 cat > "/etc/cni/net.d/05-cilium.conflist" <<EOF
@@ -55,9 +37,6 @@ cat > "/etc/sysctl.d/99-zzz-override_cilium.conf" <<EOF
 # Otherwise it will overrule the device specific settings.
 net.ipv4.conf.all.rp_filter = 0
 EOF
-
-mkdir -p "/etc/rancher/node"
-LC_ALL=C tr -dc '[:alpha:][:digit:]' </dev/urandom | head -c 32 > /etc/rancher/node/password
 
 curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL="v1.28.11+rke2r1" sh -
 systemctl enable rke2-server.service

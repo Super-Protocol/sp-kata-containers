@@ -48,20 +48,22 @@ run_postbuild() {
 	rm -f ${rootfs_dir}/install_nvidia_drivers.sh
 	cp ${script_dir}/nvidia-persistenced.service ${rootfs_dir}/usr/lib/systemd/system/
 
-	echo 'root:123456' | chroot $rootfs_dir chpasswd
+	#root password 123456
+	sed -i 's/^root:[^:]*:/root:\$y\$j9T\$E7WaCyjpFVywWqVjEWTZt\/\$.PbRE31ecNZAINtNqyQCnDVOXvYnJ0pqK\/uMA3OFzD0:/' ${rootfs_dir}/etc/shadow
 
 	set -x
-	cp ${script_dir}/rke.sh ${rootfs_dir}
-	chroot "$rootfs_dir" /bin/bash "/rke.sh"
-	rm -f ${rootfs_dir}/rke.sh
-	mkdir -p "${rootfs_dir}/etc/super/var/lib/rancher/rke2/server/manifests/"
-	cp ${script_dir}/k8s-infra.yaml "${rootfs_dir}/etc/super/var/lib/rancher/rke2/server/manifests/"
-
 	cp "${script_dir}/check-config-files.service" "${rootfs_dir}/etc/systemd/system"
 	cp "${script_dir}/check-config-files.timer" "${rootfs_dir}/etc/systemd/system"
 	cp "${script_dir}/check-config-files.sh" "${rootfs_dir}/usr/local/bin/"
 	ln -s /etc/systemd/system/check-config-files.service "$rootfs_dir/etc/systemd/system/multi-user.target.wants/check-config-files.service"
 	ln -s /etc/systemd/system/check-config-files.timer "$rootfs_dir/etc/systemd/system/timers.target.wants/check-config-files.timer"
+
+	cp ${script_dir}/rke.sh ${rootfs_dir}
+	chroot "$rootfs_dir" /bin/bash "/rke.sh"
+	rm -f ${rootfs_dir}/rke.sh
+
+	mkdir -p "${rootfs_dir}/etc/super/var/lib/rancher/rke2/server/manifests/"
+	cp "${script_dir}/k8s-infra.yaml" "${rootfs_dir}/etc/super/var/lib/rancher/rke2/server/manifests/"
 
 	set +x
 

@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       base64_input:
-        description: 'Base64 Encoded Input'
+        description: 'Base64-encoded TDX MrEnclave'
         required: true
         type: string
 
@@ -16,9 +16,10 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Decode Base64 input
-      run: echo "${{ github.event.inputs.base64_input }}" | base64 --decode
+      run: echo "${{ github.event.inputs.base64_input }}" | base64 --decode > ./mrenclave.bin
 
-    - name: Use decoded input (example)
+    - name: Sign
       run: |
-        decoded_value=$(echo "${{ github.event.inputs.base64_input }}" | base64 --decode)
-        echo "The decoded value is: $decoded_value"
+        echo "${{ secrets.ENCLAVE_KEY }}" > ./enclave-key.pem
+        openssl dgst -sha256 -sign ./enclave-key.pem -out ./mrenclave.sig ./mrenclave.bin
+        base64 test_data.bin.sig

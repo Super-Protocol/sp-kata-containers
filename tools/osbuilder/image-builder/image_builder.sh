@@ -518,6 +518,17 @@ create_rootfs_image() {
 		fsck.ext4 -D -y "${device}p1"
 	fi
 
+		faketime "${fixed_date}" debugfs -w ${device}p1 <<EOF
+
+	set_super_value mtime ${SOURCE_DATE_EPOCH}
+	set_super_value last_mounted "/build/superprotocol/rootfs/this/is/a/64/byte/path/to/full/fill"
+	set_super_value lastcheck ${SOURCE_DATE_EPOCH}
+	set_super_value wtime ${SOURCE_DATE_EPOCH}
+
+	close -a
+	quit
+EOF
+
 	if [ "${MEASURED_ROOTFS}" == "yes" ] && [ -b "${device}p2" ]; then
 		info "veritysetup format rootfs device: ${device}p1, hash device: ${device}p2"
 		local image_dir=$(dirname "${image}")

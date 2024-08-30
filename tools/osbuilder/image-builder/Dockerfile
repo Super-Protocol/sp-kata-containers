@@ -15,5 +15,7 @@ RUN ([ -n "$http_proxy" ] && \
         parted \
         qemu-img \
         veritysetup \
-        xfsprogs && \
+        xfsprogs \
+        rsync \
+        faketime && \
     dnf clean all

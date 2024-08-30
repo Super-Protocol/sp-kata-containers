@@ -20,6 +20,7 @@ jobs:
 
     - name: Sign
       run: |
-        echo "${{ secrets.ENCLAVE_KEY }}" > ./enclave-key.pem
+        #echo "${{ secrets.ENCLAVE_KEY }}" > ./enclave-key.pem
+        openssl genrsa -3 -out ./enclave-key.pem 3072
         openssl dgst -sha256 -sign ./enclave-key.pem -out ./mrenclave.sig ./mrenclave.bin
         base64 test_data.bin.sig

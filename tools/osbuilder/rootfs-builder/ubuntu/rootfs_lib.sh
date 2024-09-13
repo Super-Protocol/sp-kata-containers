@@ -10,7 +10,14 @@ build_dbus() {
 
 build_rootfs() {
 	local rootfs_dir=$1
-	debootstrap --arch=amd64 --variant=minbase $UBUNTU_CODENAME ${rootfs_dir} http://archive.ubuntu.com/ubuntu/
+	read -r -a packages <<< "${PACKAGES} ${EXTRA_PKGS}"
+	IFS=,
+	local comma_separated_packages="${packages[*]}"
+	unset IFS
+
+	debootstrap --arch=amd64 --variant=minbase --include=${comma_separated_packages} --components=main,universe \
+		$UBUNTU_CODENAME ${rootfs_dir} http://us.archive.ubuntu.com/ubuntu/
+	
 	ret=$?
 	if [ ${ret} -ne 0 ]; then
 		echo "FAILED TO BUILD ROOTFS. DEBOOTSTRAP return ${ret}"
@@ -36,5 +43,5 @@ build_rootfs() {
 
 	local script_dir=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
 	source ${script_dir}/superprotocol/postbuild.sh
-	run_postbuild ${rootfs_dir} "${PACKAGES} ${EXTRA_PKGS}"
+	run_postbuild ${rootfs_dir}
 }

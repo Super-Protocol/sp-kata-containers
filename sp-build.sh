@@ -27,7 +27,7 @@ wget "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64
 popd
 
 pushd "${SCRIPT_DIR}/tools/osbuilder/rootfs-builder"
-script -fec 'sudo -E USE_DOCKER=true PROVIDER_CONFIG_DST="${PROVIDER_CONFIG_DST}" CONFIDENTIAL_GUEST=yes MEASURED_ROOTFS=yes EXTRA_PKGS="init openssh-server netplan.io curl htop open-iscsi cryptsetup ca-certificates" ./rootfs.sh "${DISTRO}"'
+script -fec 'sudo -E USE_DOCKER=true PROVIDER_CONFIG_DST="${PROVIDER_CONFIG_DST}" CONFIDENTIAL_GUEST=yes MEASURED_ROOTFS=yes EXTRA_PKGS="init openssh-server netplan.io curl htop open-iscsi cryptsetup ca-certificates gnupg2" ./rootfs.sh "${DISTRO}"'
 popd
 
 pushd "${SCRIPT_DIR}/tools/osbuilder/image-builder"
@@ -58,7 +58,7 @@ qemu-system-x86_64 \\
 -drive file=\$SCRIPT_DIR/rootfs.img,if=virtio,format=raw \\
 -drive file=\$SCRIPT_DIR/state.qcow2,if=virtio,format=qcow2 \\
 -kernel \$SCRIPT_DIR/vmlinuz \\
--smp cores=${VM_CPU},threads=2,sockets=2 \\
+-smp cores=${VM_CPU} \\
 -m ${VM_MEMORY}G \\
 -cpu host \\
 -object '{\"qom-type\":\"tdx-guest\",\"id\":\"tdx\",\"quote-generation-socket\":{\"type\": \"vsock\", \"cid\":\"2\",\"port\":\"4050\"}}' \\

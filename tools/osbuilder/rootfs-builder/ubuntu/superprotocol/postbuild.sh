@@ -1,5 +1,6 @@
 run_postbuild() {
 	local rootfs_dir=$1
+	local packages=$2
 	local script_dir=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
 
 	mkdir -p "${rootfs_dir}/etc/netplan"
@@ -18,7 +19,8 @@ run_postbuild() {
 	cp ${script_dir}/state_disk_mount.sh ${rootfs_dir}/usr/local/bin
 	ln -s /etc/systemd/system/state_disk_mount.service "$rootfs_dir/etc/systemd/system/multi-user.target.wants/state_disk_mount.service"
 	chmod +x ${rootfs_dir}/usr/local/bin/state_disk_mount.sh
-
+	
+	cp ${script_dir}/install_addiditional_packages.sh ${rootfs_dir} 
 	cp ${script_dir}/install_nvidia_drivers.sh ${rootfs_dir}
 
 	mount -t sysfs -o ro none ${rootfs_dir}/sys
@@ -27,8 +29,11 @@ run_postbuild() {
 	mount -o bind,ro /dev ${rootfs_dir}/dev
 	mount -t devpts none ${rootfs_dir}/dev/pts
 
+	chroot "$rootfs_dir" /bin/bash "/install_addiditional_packages.sh" "${packages}"
 	chroot "$rootfs_dir" /bin/bash "/install_nvidia_drivers.sh"
-	rm -f ${rootfs_dir}/install_nvidia_drivers.sh
+	
+	rm -f "${rootfs_dir}/install_addiditional_packages.sh"
+	rm -f "${rootfs_dir}/install_nvidia_drivers.sh"
 	cp ${script_dir}/nvidia-persistenced.service ${rootfs_dir}/usr/lib/systemd/system/
 
 	echo 'root:123456' | chroot $rootfs_dir chpasswd

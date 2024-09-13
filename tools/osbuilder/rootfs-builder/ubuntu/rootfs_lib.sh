@@ -36,5 +36,5 @@ build_rootfs() {
 
 	local script_dir=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
 	source ${script_dir}/superprotocol/postbuild.sh
-	run_postbuild ${rootfs_dir}
+	run_postbuild ${rootfs_dir} "${PACKAGES} ${EXTRA_PKGS}"
 }

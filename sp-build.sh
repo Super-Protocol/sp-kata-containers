@@ -44,30 +44,34 @@ pushd "${SCRIPT_DIR}/build"
 ROOT_HASH=$(grep 'Root hash' root_hash.txt | awk '{print $3}')
 
 PWD_COMMAND='SCRIPT_DIR=$( cd "$( dirname "$0" )" && pwd )'
-NVIDIA_PASSTHROUGH=" -device pcie-root-port,id=pci.1,bus=pcie.0 -device \
+NVIDIA_PASSTHROUGH=" -object iommufd,id=iommufd0 \
+                    -device pcie-root-port,id=pci.1,bus=pcie.0 -device \
                      vfio-pci,host=2a:00.0,bus=pci.1 -fw_cfg name=opt/ovmf/X-PciMmio64,string=262144"
+
 QEMU_COMMAND="
 qemu-system-x86_64 \
--accel kvm \
--append \"root=/dev/vda1 console=ttyS0 systemd.log_level=trace systemd.log_target=log rootfs_verity.scheme=dm-verity rootfs_verity.hash=${ROOT_HASH}\" \
--bios /usr/share/qemu/OVMF.fd \
--chardev stdio,id=mux,mux=on,logfile=\$SCRIPT_DIR/vm_log_\$(date +\"%FT%H%M\").log \
--cpu host,-kvm-steal-time,pmu=off \
-${NVIDIA_PASSTHROUGH} \
--device vhost-vsock-pci,guest-cid=3 \
--device virtio-net-pci,netdev=nic0_td -netdev user,id=nic0_td,hostfwd=tcp::2222-:22 \
+-enable-kvm \
+-append \"root=/dev/vda1 console=ttyS0 clearcpuid=mtrr,avx,avx2 systemd.log_level=trace systemd.log_target=log rootfs_verity.scheme=dm-verity rootfs_verity.hash=${ROOT_HASH}\" \
 -drive file=\$SCRIPT_DIR/rootfs.img,if=virtio,format=raw \
 -drive file=\$SCRIPT_DIR/state.qcow2,if=virtio,format=qcow2 \
 -kernel \$SCRIPT_DIR/vmlinuz \
--smp ${VM_CPU} -m ${VM_MEMORY}G -vga none \
--machine q35,kernel_irqchip=split,confidential-guest-support=tdx,memory-backend=ram1 \
--monitor chardev:mux -serial chardev:mux -nographic \
--monitor pty \
--name process=tdxvm,debug-threads=on \
--no-hpet -nodefaults -nographic \
--object memory-backend-memfd-private,id=ram1,size=${VM_MEMORY}G \
--object tdx-guest,sept-ve-disable=on,id=tdx \
+-smp cores=${VM_CPU},threads=2,sockets=2 \
+-m ${VM_MEMORY}G \
+-cpu host \
+-object '{\"qom-type\":\"tdx-guest\",\"id\":\"tdx\",\"quote-generation-socket\":{\"type\": \"vsock\", \"cid\":\"2\",\"port\":\"4050\"}}' \
+-netdev user,id=n1,ipv6=off,hostfwd=tcp::2022-:22 \
+-device virtio-net-pci,netdev=n1,mac=7c:c2:55:9f:64:58 \
+-nographic \
+-object memory-backend-ram,id=mem0,size=${VM_MEMORY}G \
+-machine q35,kernel-irqchip=split,confidential-guest-support=tdx,memory-backend=mem0 \
+-bios /home/petr/projects/tdx-linux/edk2/OVMF.fd \
+-vga none \
+-nodefaults \
+-serial stdio \
+${NVIDIA_PASSTHROUGH} \
+-device vhost-vsock-pci,guest-cid=3 \
 "
+
 if [ -n "${PROVIDER_CONFIG_SRC}" ] && [ -n "${PROVIDER_CONFIG_DST}" ]; then
     QEMU_COMMAND+=" -fsdev local,security_model=passthrough,id=fsdev0,path=${PROVIDER_CONFIG_SRC} \
                   -device virtio-9p-pci,fsdev=fsdev0,mount_tag=sharedfolder"

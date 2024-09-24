@@ -31,7 +31,7 @@ script -fec 'sudo -E USE_DOCKER=true PROVIDER_CONFIG_DST="${PROVIDER_CONFIG_DST}
 popd
 
 pushd "${SCRIPT_DIR}/tools/osbuilder/image-builder"
-script -fec 'sudo -E USE_DOCKER=true MEASURED_ROOTFS=yes ./image_builder.sh "${ROOTFS_DIR}"'
+script -fec 'sudo -E USE_DOCKER=true MEASURED_ROOTFS=yes ./image_builder.sh -r 20000 "${ROOTFS_DIR}"'
 popd
 
 cp "${SCRIPT_DIR}/tools/osbuilder/image-builder/kata-containers.img" "${SCRIPT_DIR}/build/rootfs.img"
@@ -39,7 +39,7 @@ cp "${SCRIPT_DIR}/tools/osbuilder/image-builder/root_hash.txt" "${SCRIPT_DIR}/bu
 cp -L "${SCRIPT_DIR}/tools/packaging/kata-deploy/local-build/build/kernel-${KERNEL_NAME}/destdir/opt/kata/share/kata-containers/vmlinuz-${KERNEL_NAME}.container" "${SCRIPT_DIR}/build/vmlinuz"
 
 pushd "${SCRIPT_DIR}/build"
-#qemu-img create -f qcow2 state.qcow2 ${STATE_DISK_SIZE}G
+qemu-img create -f qcow2 state.qcow2 ${STATE_DISK_SIZE}G
 
 ROOT_HASH=$(grep 'Root hash' root_hash.txt | awk '{print $3}')
 

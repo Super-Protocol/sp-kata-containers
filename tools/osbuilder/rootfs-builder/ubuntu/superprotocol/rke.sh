@@ -1,6 +1,7 @@
 #!/bin/bash
 set -x
 
+LOCAL_REGISTRY_HOST="hauler.local"
 SUPER_REGISTRY_HOST="registry.dev.superprotocol.ltd"
 SUPER_SCRIPT_DIR="/etc/super"
 mkdir -p "$SUPER_SCRIPT_DIR"
@@ -14,12 +15,21 @@ disable:
   - rke2-metrics-server
 cni:
   - cilium
+system-default-registry: $LOCAL_REGISTRY_HOST
+
 EOF
 cat > "/etc/rancher/rke2/registries.yaml" <<EOF
 configs:
   "$SUPER_REGISTRY_HOST:32443":
     tls:
       insecure_skip_verify: true
+  "$LOCAL_REGISTRY_HOST:5000":
+    tls:
+      insecure_skip_verify: true
+mirrors:
+  "*":
+    endpoint:
+      - "http://$LOCAL_REGISTRY_HOST:5000"
 EOF
 
 mkdir -p "/etc/cni/net.d"
@@ -54,7 +64,31 @@ EOF
 mkdir -p "/etc/rancher/node"
 LC_ALL=C tr -dc '[:alpha:][:digit:]' </dev/urandom | head -c 32 > /etc/rancher/node/password
 
-curl -sfL https://get.rke2.io | INSTALL_RKE2_CHANNEL="v1.28.11+rke2r1" sh -
+# hauler
+
+# Install rke2
+#vRKE2=v1.30.4+rke2r1
+vRKE2=v1.30.3-rke2r1
+
+mkdir -p /root/rke2-artifacts
+cd /root/rke2-artifacts/
+curl -OLs "https://github.com/rancher/rke2/releases/download/${vRKE2}/rke2-images.linux-amd64.tar.zst"
+curl -OLs "https://github.com/rancher/rke2/releases/download/${vRKE2}/rke2.linux-amd64.tar.gz"
+curl -OLs "https://github.com/rancher/rke2/releases/download/${vRKE2}/sha256sum-amd64.txt"
+curl -sfL https://get.rke2.io --output install.sh
+
+# for v1.30.4+rke2r1
+SHA_CHECKSUMS=b6545cd7c2d972ba00d8c254e32ca09976311247bb81e1e67d3a79223819196c
+# for v1.30.3-rke2r1
+SHA_CHECKSUMS=0019dfc4b32d63c1392aa264aed2253c1e0c2fb09216f8e2cc269bbfb8bb49b5
+SHA_INSTALL=8d57ffcda9974639891af35a01e9c3c2b8f97ac71075a805d60060064b054492
+
+echo "$SHA_CHECKSUMS sha256sum-amd64.txt" | sha256sum --check
+echo "$SHA_INSTALL install.sh" | sha256sum --check
+
+INSTALL_RKE2_ARTIFACT_PATH=/root/rke2-artifacts sh install.sh
+
+cd -
 systemctl enable rke2-server.service
 
 mkdir -p "/var/lib/rancher/rke2"
@@ -94,6 +128,10 @@ version = 2
       [plugins."io.containerd.grpc.v1.cri".registry.mirrors."$SUPER_REGISTRY_HOST:32443"]
         endpoint = ["https://$SUPER_REGISTRY_HOST:32443"]
       [plugins."io.containerd.grpc.v1.cri".registry.configs."$SUPER_REGISTRY_HOST:32443".tls]
+        insecure_skip_verify = true
+      [plugins."io.containerd.grpc.v1.cri".registry.mirrors."$LOCAL_REGISTRY_HOST:5000"]
+        endpoint = ["https://$LOCAL_REGISTRY_HOST:5000"]
+      [plugins."io.containerd.grpc.v1.cri".registry.configs."$LOCAL_REGISTRY_HOST:5000".tls]
         insecure_skip_verify = true
   [plugins."io.containerd.grpc.v1.cri".containerd]
     snapshotter = "overlayfs"
@@ -155,7 +193,7 @@ search .
 EOF
 
 cat >> /etc/hosts <<EOF
-10.0.2.15	$SUPER_REGISTRY_HOST
+10.0.2.15	$SUPER_REGISTRY_HOST $LOCAL_REGISTRY_HOST
 EOF
 
 # debug
@@ -168,3 +206,40 @@ echo "alias kubectl='/var/lib/rancher/rke2/bin/kubectl'" >>  /etc/profile
 sed -i 's|[#]*PasswordAuthentication .*|PasswordAuthentication yes|g' /etc/ssh/sshd_config
 sed -i 's|[#]*PermitRootLogin .*|PermitRootLogin yes|g' /etc/ssh/sshd_config
 sed -i 's|[#]*KbdInteractiveAuthentication .*|KbdInteractiveAuthentication yes|g' /etc/ssh/sshd_config
+
+### Setup Directories
+mkdir -p /opt/hauler/.hauler
+cd /opt/hauler
+
+ln -s /opt/hauler/.hauler ~/.hauler
+
+### Download and Install Hauler
+vHauler=1.0.8
+curl -sfL https://get.hauler.dev | HAULER_VERSION=${vHauler} bash
+
+### Fetch Rancher Airgap Manifests
+curl -sfOL https://raw.githubusercontent.com/zackbradys/rancher-airgap/main/hauler/rancher/rancher-airgap-rancher-minimal.yaml
+curl -sfOL https://raw.githubusercontent.com/zackbradys/rancher-airgap/main/hauler/longhorn/rancher-airgap-longhorn.yaml
+curl -sfOL https://raw.githubusercontent.com/zackbradys/rancher-airgap/main/hauler/cosign/rancher-airgap-cosign.yaml
+
+### Sync Manifests to Hauler Store
+hauler store sync --store rancher-store --platform linux/amd64 --files rancher-airgap-rancher-minimal.yaml
+hauler store sync --store longhorn-store --platform linux/amd64 --files rancher-airgap-longhorn.yaml
+hauler store sync --store extras --files rancher-airgap-cosign.yaml
+
+### Save Hauler Tarballs
+hauler store save --store rancher-store --filename rancher-airgap-rancher-minimal.tar.zst
+hauler store save --store longhorn-store --filename rancher-airgap-longhorn.tar.zst
+hauler store save --store extras --filename rancher-airgap-extras.tar.zst
+
+### Fetch Hauler Binary
+curl -sfOL https://github.com/hauler-dev/hauler/releases/download/v${vHauler}/hauler_${vHauler}_linux_amd64.tar.gz
+
+mkdir -p $SUPER_SCRIPT_DIR/opt/hauler
+cp *.tar.zst $SUPER_SCRIPT_DIR/opt/hauler/
+
+# curl -sL https://github.com/hauler-dev/hauler/releases/download/v${vHauler}/hauler_${vHauler}_linux_amd64.tar.gz > $SUPER_SCRIPT_DIR/opt/hauler/hauler.tar.gz
+
+#curl -sL https://github.com/hauler-dev/hauler/releases/download/v${vHauler}/hauler_${vHauler}_linux_amd64.tar.gz > hauler.tar.gz
+#tar -xf hauler.tar.gz
+#chmod 755 hauler && mv hauler /usr/bin/hauler

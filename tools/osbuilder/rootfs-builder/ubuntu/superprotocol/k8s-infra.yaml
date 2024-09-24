@@ -75,7 +75,7 @@ metadata:
 spec:
   repo: https://charts.longhorn.io
   chart: longhorn
-  version: 1.6.2
+  version: 1.7.1
   targetNamespace: longhorn-system
   valuesContent: |-
     csi:

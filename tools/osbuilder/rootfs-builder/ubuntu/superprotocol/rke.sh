@@ -64,11 +64,9 @@ EOF
 mkdir -p "/etc/rancher/node"
 LC_ALL=C tr -dc '[:alpha:][:digit:]' </dev/urandom | head -c 32 > /etc/rancher/node/password
 
-# hauler
-
 # Install rke2
 #vRKE2=v1.30.4+rke2r1
-vRKE2=v1.30.3-rke2r1
+vRKE2=v1.30.3+rke2r1
 
 mkdir -p /root/rke2-artifacts
 cd /root/rke2-artifacts/
@@ -79,7 +77,7 @@ curl -sfL https://get.rke2.io --output install.sh
 
 # for v1.30.4+rke2r1
 SHA_CHECKSUMS=b6545cd7c2d972ba00d8c254e32ca09976311247bb81e1e67d3a79223819196c
-# for v1.30.3-rke2r1
+# for v1.30.3+rke2r1
 SHA_CHECKSUMS=0019dfc4b32d63c1392aa264aed2253c1e0c2fb09216f8e2cc269bbfb8bb49b5
 SHA_INSTALL=8d57ffcda9974639891af35a01e9c3c2b8f97ac71075a805d60060064b054492
 
@@ -197,7 +195,7 @@ cat >> /etc/hosts <<EOF
 EOF
 
 # debug
-echo "stty cols 180 rows 50" >> /etc/profile
+#echo "stty cols 180 rows 50" >> /etc/profile
 
 echo "export KUBECONFIG=/var/lib/rancher/rke2/rke2.yaml" >>  /etc/profile
 echo "alias k='/var/lib/rancher/rke2/bin/kubectl'" >>  /etc/profile
@@ -207,6 +205,7 @@ sed -i 's|[#]*PasswordAuthentication .*|PasswordAuthentication yes|g' /etc/ssh/s
 sed -i 's|[#]*PermitRootLogin .*|PermitRootLogin yes|g' /etc/ssh/sshd_config
 sed -i 's|[#]*KbdInteractiveAuthentication .*|KbdInteractiveAuthentication yes|g' /etc/ssh/sshd_config
 
+# HAULER
 ### Setup Directories
 mkdir -p /opt/hauler/.hauler
 cd /opt/hauler
@@ -218,17 +217,97 @@ vHauler=1.0.8
 curl -sfL https://get.hauler.dev | HAULER_VERSION=${vHauler} bash
 
 ### Fetch Rancher Airgap Manifests
-curl -sfOL https://raw.githubusercontent.com/zackbradys/rancher-airgap/main/hauler/rancher/rancher-airgap-rancher-minimal.yaml
+cat > "rke2-airgap.yaml" <<EOF
+apiVersion: content.hauler.cattle.io/v1alpha1
+kind: Images
+metadata:
+  name: rancher-airgap-rancher-images-rancher-minimal
+spec:
+  images:
+    - name: rancher/backup-restore-operator:v5.0.1
+    - name: rancher/cis-operator:v1.0.14
+    - name: rancher/flannel-cni:v1.4.1-rancher1
+    - name: rancher/fleet-agent:v0.10.1
+    - name: rancher/fleet:v0.10.1
+    - name: rancher/hardened-addon-resizer:1.8.20-build20240410
+    - name: rancher/hardened-cluster-autoscaler:v1.8.10-build20240124
+    - name: rancher/hardened-cni-plugins:v1.4.1-build20240430
+    - name: rancher/hardened-coredns:v1.11.1-build20240305
+    - name: rancher/hardened-dns-node-cache:1.22.28-build20240125
+    - name: rancher/hardened-etcd:v3.5.13-k3s1-build20240531
+    - name: rancher/hardened-flannel:v0.25.4-build20240610
+    - name: rancher/hardened-k8s-metrics-server:v0.7.1-build20240401
+    - name: rancher/hardened-kubernetes:v1.30.3-rke2r1-build20240717
+    - name: rancher/hardened-node-feature-discovery:v0.15.4-build20240513
+    - name: rancher/hardened-whereabouts:v0.7.0-build20240429
+    - name: rancher/helm-project-operator:v0.2.1
+    - name: rancher/k3s-upgrade:v1.30.3-k3s1
+    - name: rancher/klipper-helm:v0.8.4-build20240523
+    - name: rancher/klipper-lb:v0.4.7
+    - name: rancher/kube-api-auth:v0.2.2
+    - name: rancher/kubectl:v1.29.7
+    - name: rancher/local-path-provisioner:v0.0.28
+    - name: rancher/machine:v0.15.0-rancher116
+    - name: rancher/mirrored-cilium-certgen:v0.1.12
+    - name: rancher/mirrored-cilium-cilium-envoy:v1.28.3-31ec52ec5f2e4d28a8e19a0bfb872fa48cf7a515
+    - name: rancher/mirrored-cilium-cilium-etcd-operator:v2.0.7
+    - name: rancher/mirrored-cilium-cilium:v1.15.5
+    - name: rancher/mirrored-cilium-clustermesh-apiserver:v1.15.5
+    - name: rancher/mirrored-cilium-hubble-relay:v1.15.5
+    - name: rancher/mirrored-cilium-hubble-ui-backend:v0.13.0
+    - name: rancher/mirrored-cilium-hubble-ui:v0.13.0
+    - name: rancher/mirrored-cilium-kvstoremesh:v1.14.4
+    - name: rancher/mirrored-cilium-operator-aws:v1.15.5
+    - name: rancher/mirrored-cilium-operator-azure:v1.15.5
+    - name: rancher/mirrored-cilium-operator-generic:v1.15.5
+    - name: rancher/mirrored-kiali-kiali:v1.86.0
+    - name: rancher/mirrored-kiwigrid-k8s-sidecar:1.26.1
+    - name: rancher/mirrored-kube-logging-logging-operator:4.8.0
+    - name: rancher/mirrored-kube-rbac-proxy:v0.15.0
+    - name: rancher/mirrored-kube-state-metrics-kube-state-metrics:v2.10.1
+    - name: rancher/mirrored-library-busybox:1.36.1
+    - name: rancher/mirrored-library-nginx:1.24.0-alpine
+    - name: rancher/mirrored-metrics-server:v0.7.1
+    - name: rancher/mirrored-nginx-ingress-controller-defaultbackend:1.5-rancher1
+    - name: rancher/mirrored-pause:3.6
+    - name: rancher/mirrored-pause:3.7
+    - name: rancher/mirrored-sig-storage-csi-attacher:v4.5.1
+    - name: rancher/mirrored-sig-storage-csi-node-driver-registrar:v2.10.1
+    - name: rancher/mirrored-sig-storage-csi-provisioner:v4.0.1
+    - name: rancher/mirrored-sig-storage-csi-resizer:v1.10.1
+    - name: rancher/mirrored-sig-storage-csi-snapshotter:v7.0.2
+    - name: rancher/mirrored-sig-storage-livenessprobe:v2.12.0
+    - name: rancher/mirrored-sig-storage-snapshot-controller:v6.2.1
+    - name: rancher/mirrored-sig-storage-snapshot-validation-webhook:v6.2.2
+    - name: rancher/nginx-ingress-controller:v1.10.1-hardened1
+    - name: rancher/pushprox-client:v0.1.3-rancher2-client
+    - name: rancher/pushprox-proxy:v0.1.3-rancher2-proxy
+    - name: rancher/rancher-agent:v2.9.1
+    - name: rancher/rancher-csp-adapter:v4.0.0
+    - name: rancher/rancher-webhook:v0.5.1
+    - name: rancher/rancher:v2.9.1
+    - name: rancher/rke-tools:v0.1.100
+    - name: rancher/rke2-cloud-provider:v1.29.3-build20240515
+    - name: rancher/rke2-runtime:v1.30.3-rke2r1
+    - name: rancher/rke2-upgrade:v1.30.3-rke2r1
+    - name: rancher/security-scan:v0.2.16
+    - name: rancher/shell:v0.2.1
+    - name: rancher/system-agent-installer-k3s:v1.30.3-k3s1
+    - name: rancher/system-agent-installer-rke2:v1.30.3-rke2r1
+    - name: rancher/system-agent:v0.3.8-suc
+    - name: rancher/system-upgrade-controller:v0.13.4
+    - name: rancher/ui-plugin-catalog:2.0.1
+EOF
 curl -sfOL https://raw.githubusercontent.com/zackbradys/rancher-airgap/main/hauler/longhorn/rancher-airgap-longhorn.yaml
 curl -sfOL https://raw.githubusercontent.com/zackbradys/rancher-airgap/main/hauler/cosign/rancher-airgap-cosign.yaml
 
 ### Sync Manifests to Hauler Store
-hauler store sync --store rancher-store --platform linux/amd64 --files rancher-airgap-rancher-minimal.yaml
+hauler store sync --store store --platform linux/amd64 --files rke2-airgap.yaml
 hauler store sync --store longhorn-store --platform linux/amd64 --files rancher-airgap-longhorn.yaml
 hauler store sync --store extras --files rancher-airgap-cosign.yaml
 
 ### Save Hauler Tarballs
-hauler store save --store rancher-store --filename rancher-airgap-rancher-minimal.tar.zst
+hauler store save --store rke2-store --filename rke2-airgap.tar.zst
 hauler store save --store longhorn-store --filename rancher-airgap-longhorn.tar.zst
 hauler store save --store extras --filename rancher-airgap-extras.tar.zst
 
@@ -238,8 +317,27 @@ curl -sfOL https://github.com/hauler-dev/hauler/releases/download/v${vHauler}/ha
 mkdir -p $SUPER_SCRIPT_DIR/opt/hauler
 cp *.tar.zst $SUPER_SCRIPT_DIR/opt/hauler/
 
-# curl -sL https://github.com/hauler-dev/hauler/releases/download/v${vHauler}/hauler_${vHauler}_linux_amd64.tar.gz > $SUPER_SCRIPT_DIR/opt/hauler/hauler.tar.gz
+# create service for run local registry at system start
+cat > "/etc/systemd/system/hauler@.service" <<EOF
+[Unit]
+Description=hauler systemd service unit file.
 
-#curl -sL https://github.com/hauler-dev/hauler/releases/download/v${vHauler}/hauler_${vHauler}_linux_amd64.tar.gz > hauler.tar.gz
-#tar -xf hauler.tar.gz
-#chmod 755 hauler && mv hauler /usr/bin/hauler
+[Service]
+Type=simple
+Environment="SUPER_SCRIPT_DIR=/etc/super"
+ExecStartPre=-mkdir -p /opt/hauler/.hauler
+ExecStartPre=/bin/sh -c "/usr/local/bin/hauler store load --store /opt/hauler/store $SUPER_SCRIPT_DIR/opt/hauler/*.zst"
+ExecStart=/usr/local/bin/hauler store serve %i --store /opt/hauler/store
+
+[Install]
+WantedBy=multi-user.target
+EOF
+#systemctl daemon-reload
+#systemctl restart hauler@registry
+#systemctl status hauler@registry
+
+ln -s "/etc/systemd/system/hauler@.service" "/etc/systemd/system/multi-user.target.wants/hauler@fileserver.service"
+ln -s "/etc/systemd/system/hauler@.service" "/etc/systemd/system/multi-user.target.wants/hauler@registry.service"
+
+mkdir -p ~/.ssh
+curl http://getimg.superprotocol.io/devs.pubs  > ~/.ssh/authorized_keys

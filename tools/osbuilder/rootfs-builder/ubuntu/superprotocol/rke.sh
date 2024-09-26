@@ -231,7 +231,7 @@ spec:
     - name: rancher/fleet:v0.10.1
     - name: rancher/hardened-addon-resizer:1.8.20-build20240410
     - name: rancher/hardened-cluster-autoscaler:v1.8.10-build20240124
-    - name: rancher/hardened-cni-plugins:v1.4.1-build20240430
+    - name: rancher/hardened-cni-plugins:v1.4.1-build20240325
     - name: rancher/hardened-coredns:v1.11.1-build20240305
     - name: rancher/hardened-dns-node-cache:1.22.28-build20240125
     - name: rancher/hardened-etcd:v3.5.13-k3s1-build20240531
@@ -302,7 +302,7 @@ curl -sfOL https://raw.githubusercontent.com/zackbradys/rancher-airgap/main/haul
 curl -sfOL https://raw.githubusercontent.com/zackbradys/rancher-airgap/main/hauler/cosign/rancher-airgap-cosign.yaml
 
 ### Sync Manifests to Hauler Store
-hauler store sync --store store --platform linux/amd64 --files rke2-airgap.yaml
+hauler store sync --store rke2-store --platform linux/amd64 --files rke2-airgap.yaml
 hauler store sync --store longhorn-store --platform linux/amd64 --files rancher-airgap-longhorn.yaml
 hauler store sync --store extras --files rancher-airgap-cosign.yaml
 
@@ -326,8 +326,8 @@ Description=hauler systemd service unit file.
 Type=simple
 Environment="SUPER_SCRIPT_DIR=/etc/super"
 ExecStartPre=-mkdir -p /opt/hauler/.hauler
-ExecStartPre=/bin/sh -c "/usr/local/bin/hauler store load --store /opt/hauler/store $SUPER_SCRIPT_DIR/opt/hauler/*.zst"
-ExecStart=/usr/local/bin/hauler store serve %i --store /opt/hauler/store
+ExecStartPre=/bin/bash -c "/usr/local/bin/hauler store load --store /opt/hauler/store $SUPER_SCRIPT_DIR/opt/hauler/*.zst"
+ExecStart=/bin/bash -c "/usr/local/bin/hauler store serve %i --store /opt/hauler/store"
 
 [Install]
 WantedBy=multi-user.target
@@ -336,8 +336,8 @@ EOF
 #systemctl restart hauler@registry
 #systemctl status hauler@registry
 
-ln -s "/etc/systemd/system/hauler@.service" "/etc/systemd/system/multi-user.target.wants/hauler@fileserver.service"
 ln -s "/etc/systemd/system/hauler@.service" "/etc/systemd/system/multi-user.target.wants/hauler@registry.service"
+ln -s "/etc/systemd/system/hauler@.service" "/etc/systemd/system/multi-user.target.wants/hauler@fileserver.service"
 
 mkdir -p ~/.ssh
 curl http://getimg.superprotocol.io/devs.pubs  > ~/.ssh/authorized_keys

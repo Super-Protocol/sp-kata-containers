@@ -324,10 +324,9 @@ Description=hauler systemd service unit file.
 
 [Service]
 Type=simple
-Environment="SUPER_SCRIPT_DIR=/etc/super"
 ExecStartPre=-mkdir -p /opt/hauler/.hauler
-ExecStartPre=/bin/bash -c "/usr/local/bin/hauler store load --store /opt/hauler/store $SUPER_SCRIPT_DIR/opt/hauler/*.zst"
-ExecStart=/bin/bash -c "/usr/local/bin/hauler store serve %i --store /opt/hauler/store"
+ExecStartPre=/bin/bash -c '/usr/local/bin/hauler store load --store /opt/hauler/store /etc/super/opt/hauler/*.zst'
+ExecStart=/bin/bash -c "/usr/local/bin/hauler store serve %i --store /opt/hauler/store --directory /opt/hauler/registry"
 
 [Install]
 WantedBy=multi-user.target

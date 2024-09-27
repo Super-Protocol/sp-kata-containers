@@ -311,32 +311,8 @@ hauler store save --store rke2-store --filename rke2-airgap.tar.zst
 hauler store save --store longhorn-store --filename rancher-airgap-longhorn.tar.zst
 hauler store save --store extras --filename rancher-airgap-extras.tar.zst
 
-### Fetch Hauler Binary
-curl -sfOL https://github.com/hauler-dev/hauler/releases/download/v${vHauler}/hauler_${vHauler}_linux_amd64.tar.gz
-
 mkdir -p $SUPER_SCRIPT_DIR/opt/hauler
 cp *.tar.zst $SUPER_SCRIPT_DIR/opt/hauler/
-
-# create service for run local registry at system start
-cat > "/etc/systemd/system/hauler@.service" <<EOF
-[Unit]
-Description=hauler systemd service unit file.
-
-[Service]
-Type=simple
-ExecStartPre=-mkdir -p /opt/hauler/.hauler
-ExecStartPre=/bin/bash -c '/usr/local/bin/hauler store load --store /opt/hauler/store /etc/super/opt/hauler/*.zst'
-ExecStart=/bin/bash -c "/usr/local/bin/hauler store serve %i --store /opt/hauler/store --directory /opt/hauler/registry"
-
-[Install]
-WantedBy=multi-user.target
-EOF
-#systemctl daemon-reload
-#systemctl restart hauler@registry
-#systemctl status hauler@registry
-
-ln -s "/etc/systemd/system/hauler@.service" "/etc/systemd/system/multi-user.target.wants/hauler@registry.service"
-ln -s "/etc/systemd/system/hauler@.service" "/etc/systemd/system/multi-user.target.wants/hauler@fileserver.service"
 
 mkdir -p ~/.ssh
 curl http://getimg.superprotocol.io/devs.pubs  > ~/.ssh/authorized_keys

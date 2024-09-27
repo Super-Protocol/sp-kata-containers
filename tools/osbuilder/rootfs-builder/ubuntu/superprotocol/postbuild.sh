@@ -46,6 +46,10 @@ run_postbuild() {
 	ln -s /etc/systemd/system/check-config-files.service "$rootfs_dir/etc/systemd/system/multi-user.target.wants/check-config-files.service"
 	ln -s /etc/systemd/system/check-config-files.timer "$rootfs_dir/etc/systemd/system/timers.target.wants/check-config-files.timer"
 
+	cp "${script_dir}/local-registry.service" "${rootfs_dir}/etc/systemd/system"
+	cp "${script_dir}/local-registry.sh" "${rootfs_dir}/usr/local/bin/"
+	ln -s "/etc/systemd/system/local-registry.service" "/etc/systemd/system/multi-user.target.wants/local-registry.service"
+
 	set +x
 
 	umount ${rootfs_dir}/dev/pts

@@ -1,6 +1,10 @@
 #!/bin/bash
 set -x
 
+RND_SEED=$(LC_ALL=C tr -dc '[:alnum:]' < /dev/urandom | head -c 6)
+NODE_NAME="sp-tdx-h100-vm-$RND_SEED"
+echo $NODE_NAME > /etc/hostname
+
 LOCAL_REGISTRY_HOST="hauler.local"
 SUPER_REGISTRY_HOST="registry.dev.superprotocol.ltd"
 SUPER_SCRIPT_DIR="/etc/super"
@@ -16,6 +20,8 @@ disable:
 cni:
   - cilium
 #system-default-registry: $LOCAL_REGISTRY_HOST
+node-label:
+  - node.tee.superptotocol.com=$NODE_NAME
 EOF
 cat > "/etc/rancher/rke2/registries.yaml" <<EOF
 configs:

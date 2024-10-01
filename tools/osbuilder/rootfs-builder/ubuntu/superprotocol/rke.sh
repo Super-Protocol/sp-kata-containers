@@ -6,7 +6,7 @@ NODE_NAME="sp-tdx-h100-vm-$RND_SEED"
 echo $NODE_NAME > /etc/hostname
 
 LOCAL_REGISTRY_HOST="hauler.local"
-SUPER_REGISTRY_HOST="registry.dev.superprotocol.ltd"
+SUPER_REGISTRY_HOST="registry.superprotocol.local"
 SUPER_SCRIPT_DIR="/etc/super"
 mkdir -p "$SUPER_SCRIPT_DIR"
 

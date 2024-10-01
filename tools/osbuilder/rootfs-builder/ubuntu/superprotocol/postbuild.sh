@@ -41,7 +41,7 @@ run_postbuild() {
 	chroot "$rootfs_dir" /bin/bash "/rke.sh"
 	rm -f ${rootfs_dir}/rke.sh
 	mkdir -p "${rootfs_dir}/etc/super/var/lib/rancher/rke2/server/manifests/"
-	cp ${script_dir}/k8s-infra.yaml "${rootfs_dir}/etc/super/var/lib/rancher/rke2/server/manifests/"
+	cp ${script_dir}/k8s.yaml "${rootfs_dir}/etc/super/var/lib/rancher/rke2/server/manifests/"
 
 	cp "${script_dir}/check-config-files.service" "${rootfs_dir}/etc/systemd/system"
 	cp "${script_dir}/check-config-files.timer" "${rootfs_dir}/etc/systemd/system"

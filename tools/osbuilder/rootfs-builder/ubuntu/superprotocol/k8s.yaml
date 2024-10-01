@@ -54,9 +54,24 @@ spec:
       - name: loadbalance
       - name: hosts
         configBlock: |-
-          10.0.2.15  registry.dev.superprotocol.ltd
+          10.0.2.15  registry.superprotocol.local
           fallthrough
 
+---
+
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: rke2-ingress-nginx
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    controller:
+      hostPort:
+        enabled: true
+        ports:
+          http: 8880
+          https: 44443
 
 ---
 
@@ -98,6 +113,20 @@ spec:
       #defaultDataPath: /data/longhorn
       storageOverProvisioningPercentage: 300 # default 100
       storageMinimalAvailablePercentage: 5   # default 25
+
+---
+
+apiVersion: longhorn.io/v1beta1
+kind: RecurringJob
+metadata:
+  name: filesystem-trim
+  namespace: longhorn-system
+spec:
+  cron: "22 4 * * *"
+  task: "filesystem-trim"
+  groups:
+  - default
+  concurrency: 2
 
 ---
 
@@ -181,7 +210,7 @@ spec:
       image:
         tag: v3.5.11@sha256:b7462c43623506d05865bfe7ab5b3b3e1f9c8b3ee019bc74239e1b7f766db73c
       workflowNamespaces:
-        - super-protocol-namespace
+        - super-protocol
     executor:
       image:
         tag: v3.5.11@sha256:4a576a3fe37bf8351117d00be6febf2a93f70840736469be2eeb7c21a6b368e0
@@ -223,20 +252,6 @@ spec:
     acmesolver:
       image:
         tag: v1.15.3@sha256:71468feed486c4cf3ca431d93f996771531ab2e68f261f1a15be845720802a8a
-
----
-
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: logs
-
----
-
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: monitoring
 
 ---
 
@@ -297,3 +312,58 @@ spec:
         value: nvidia
       - name: CONTAINERD_SET_AS_DEFAULT
         value: "true"
+
+#---
+#
+#apiVersion: v1
+#kind: Namespace
+#metadata:
+#  name: logs
+#
+#---
+#
+#apiVersion: v1
+#kind: Namespace
+#metadata:
+#  name: monitoring
+#
+---
+
+##################
+# SUPER-PROTOCOL #
+##################
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: super-protocol
+
+---
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sp-root
+  namespace: argocd
+spec:
+  destination:
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: argo/clusters/golden
+    repoURL: git@github.com:Super-Protocol/sp-golden-image.git
+    targetRevision: HEAD
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+        limit: -1 # unlimited
+        backoff:
+          duration: 5s # the amount to back off. Default unit is seconds, but could also be a duration (e.g. "2m", "1h")
+          factor: 2 # a factor to multiply the base duration after each failed retry
+          maxDuration: 24h # the maximum amount of time allowed for the backoff strategy
+    syncOptions:
+      - CreateNamespace=true
+      - Replace=true
+      - PruneLast=true

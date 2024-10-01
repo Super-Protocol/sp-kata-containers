@@ -1,7 +1,7 @@
 #!/bin/bash
 set -x
 
-RND_SEED=$(LC_ALL=C tr -dc '[:alnum:]' < /dev/urandom | head -c 6)
+RND_SEED=$(LC_ALL=C tr -dc '[:lower:]' < /dev/urandom | head -c 6)
 NODE_NAME="sp-tdx-h100-vm-$RND_SEED"
 echo $NODE_NAME > /etc/hostname
 
@@ -21,7 +21,7 @@ cni:
   - cilium
 #system-default-registry: $LOCAL_REGISTRY_HOST
 node-label:
-  - node.tee.superptotocol.com=$NODE_NAME
+  - node.tee.superprotocol.com/name=$NODE_NAME
 EOF
 cat > "/etc/rancher/rke2/registries.yaml" <<EOF
 configs:

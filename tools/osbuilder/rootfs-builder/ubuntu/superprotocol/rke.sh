@@ -15,8 +15,7 @@ disable:
   - rke2-metrics-server
 cni:
   - cilium
-system-default-registry: $LOCAL_REGISTRY_HOST
-
+#system-default-registry: $LOCAL_REGISTRY_HOST
 EOF
 cat > "/etc/rancher/rke2/registries.yaml" <<EOF
 configs:
@@ -65,7 +64,6 @@ mkdir -p "/etc/rancher/node"
 LC_ALL=C tr -dc '[:alpha:][:digit:]' </dev/urandom | head -c 32 > /etc/rancher/node/password
 
 # Install rke2
-#vRKE2=v1.30.4+rke2r1
 vRKE2=v1.30.3+rke2r1
 
 mkdir -p /root/rke2-artifacts
@@ -75,8 +73,6 @@ curl -OLs "https://github.com/rancher/rke2/releases/download/${vRKE2}/rke2.linux
 curl -OLs "https://github.com/rancher/rke2/releases/download/${vRKE2}/sha256sum-amd64.txt"
 curl -sfL https://get.rke2.io --output install.sh
 
-# for v1.30.4+rke2r1
-SHA_CHECKSUMS=b6545cd7c2d972ba00d8c254e32ca09976311247bb81e1e67d3a79223819196c
 # for v1.30.3+rke2r1
 SHA_CHECKSUMS=0019dfc4b32d63c1392aa264aed2253c1e0c2fb09216f8e2cc269bbfb8bb49b5
 SHA_INSTALL=8d57ffcda9974639891af35a01e9c3c2b8f97ac71075a805d60060064b054492
@@ -221,7 +217,7 @@ cat > "rke2-airgap.yaml" <<EOF
 apiVersion: content.hauler.cattle.io/v1alpha1
 kind: Images
 metadata:
-  name: rancher-airgap-rancher-images-rancher-minimal
+  name: rke2-airgap
 spec:
   images:
     - name: rancher/backup-restore-operator:v5.0.1
@@ -282,10 +278,6 @@ spec:
     - name: rancher/nginx-ingress-controller:v1.10.1-hardened1
     - name: rancher/pushprox-client:v0.1.3-rancher2-client
     - name: rancher/pushprox-proxy:v0.1.3-rancher2-proxy
-    - name: rancher/rancher-agent:v2.9.1
-    - name: rancher/rancher-csp-adapter:v4.0.0
-    - name: rancher/rancher-webhook:v0.5.1
-    - name: rancher/rancher:v2.9.1
     - name: rancher/rke-tools:v0.1.100
     - name: rancher/rke2-cloud-provider:v1.29.3-build20240515
     - name: rancher/rke2-runtime:v1.30.3-rke2r1
@@ -296,20 +288,11 @@ spec:
     - name: rancher/system-agent-installer-rke2:v1.30.3-rke2r1
     - name: rancher/system-agent:v0.3.8-suc
     - name: rancher/system-upgrade-controller:v0.13.4
-    - name: rancher/ui-plugin-catalog:2.0.1
 EOF
-curl -sfOL https://raw.githubusercontent.com/zackbradys/rancher-airgap/main/hauler/longhorn/rancher-airgap-longhorn.yaml
-curl -sfOL https://raw.githubusercontent.com/zackbradys/rancher-airgap/main/hauler/cosign/rancher-airgap-cosign.yaml
 
-### Sync Manifests to Hauler Store
 hauler store sync --store rke2-store --platform linux/amd64 --files rke2-airgap.yaml
-hauler store sync --store longhorn-store --platform linux/amd64 --files rancher-airgap-longhorn.yaml
-hauler store sync --store extras --files rancher-airgap-cosign.yaml
-
-### Save Hauler Tarballs
 hauler store save --store rke2-store --filename rke2-airgap.tar.zst
-hauler store save --store longhorn-store --filename rancher-airgap-longhorn.tar.zst
-hauler store save --store extras --filename rancher-airgap-extras.tar.zst
+# @TODO add argo-cd, argo-workflows, cert-manager, gpu-operator, longhorn charts
 
 mkdir -p $SUPER_SCRIPT_DIR/opt/hauler
 cp *.tar.zst $SUPER_SCRIPT_DIR/opt/hauler/

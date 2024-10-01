@@ -77,7 +77,14 @@ spec:
   chart: longhorn
   version: 1.7.1
   targetNamespace: longhorn-system
+  # use only with klipper-helm:0.9.2+
+  #oci://hauler.local:5000/hauler/longhorn
+  #insecureSkipTLSVerify: true
+  #plainHTTP: true
   valuesContent: |-
+    #global:
+    #  cattle:
+    #    systemDefaultRegistry: "hauler.local:5000"
     csi:
       attacherReplicaCount: 1
       provisionerReplicaCount: 1

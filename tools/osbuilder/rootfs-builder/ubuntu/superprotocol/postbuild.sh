@@ -43,7 +43,7 @@ run_postbuild() {
 	cp "${script_dir}/cert/superprotocol-certs.sh" "${rootfs_dir}/usr/local/bin/"
 	cp "${script_dir}/cert/superprotocol-certs.service" "${rootfs_dir}/etc/systemd/system"
 	ln -s /etc/systemd/system/superprotocol-certs.service "$rootfs_dir/etc/systemd/system/multi-user.target.wants/superprotocol-certs.service"
-  chroot "${rootfs_dir}" update-ca-certificates --fresh
+	chroot "${rootfs_dir}" update-ca-certificates --fresh
 
 	cp ${script_dir}/rke.sh ${rootfs_dir}
 	chroot "$rootfs_dir" /bin/bash "/rke.sh"

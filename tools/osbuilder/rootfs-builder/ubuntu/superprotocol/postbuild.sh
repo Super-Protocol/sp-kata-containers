@@ -54,8 +54,9 @@ run_postbuild() {
 	cp "${script_dir}/local-registry.sh" "${rootfs_dir}/usr/local/bin/"
 	ln -s /etc/systemd/system/local-registry.service "$rootfs_dir/etc/systemd/system/multi-user.target.wants/local-registry.service"
 
-	cp "${script_dir}/super-gen-cert.service" "${rootfs_dir}/etc/systemd/system"
-	cp "${script_dir}/super-gen-cert.sh" "${rootfs_dir}/usr/local/bin/"
+	cp "${script_dir}/cert/ca-initializer-linux" "${rootfs_dir}/usr/local/bin/"
+	cp "${script_dir}/cert/super-gen-cert.sh" "${rootfs_dir}/usr/local/bin/"
+	cp "${script_dir}/cert/super-gen-cert.service" "${rootfs_dir}/etc/systemd/system"
 	ln -s /etc/systemd/system/super-gen-cert.service "$rootfs_dir/etc/systemd/system/multi-user.target.wants/super-gen-cert.service"
 
 	set +x

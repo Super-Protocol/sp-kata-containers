@@ -25,9 +25,6 @@ node-label:
 EOF
 cat > "/etc/rancher/rke2/registries.yaml" <<EOF
 configs:
-  "$SUPER_REGISTRY_HOST:32443":
-    tls:
-      insecure_skip_verify: true
   "$LOCAL_REGISTRY_HOST:5000":
     tls:
       insecure_skip_verify: true
@@ -304,6 +301,5 @@ mkdir -p $SUPER_SCRIPT_DIR/opt/hauler
 cp *.tar.zst $SUPER_SCRIPT_DIR/opt/hauler/
 rm -rf /opt/hauler/*
 
-# update CA, add trusted self-signed CA from Super Protocol
-update-ca-certificates --fresh
+# check for presence of trusted self-signed CA from Super Protocol
 awk -v cmd='openssl x509 -noout -subject' '/BEGIN/{close(cmd)};{print | cmd}' < /etc/ssl/certs/ca-certificates.crt | grep -i 'super'

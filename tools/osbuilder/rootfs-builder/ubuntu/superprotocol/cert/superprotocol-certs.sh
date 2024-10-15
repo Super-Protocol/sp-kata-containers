@@ -19,7 +19,7 @@ mkdir -p ${SUPER_CERTS_DIR}
 #cp ${SUPER_CERTS_DIR}/ca.crt /usr/local/share/ca-certificates/ca.crt
 #update-ca-certificates --verbose
 
-ca-initializer-linux ${SUPER_CERT_INITIALIZER} /etc/super/certs/ca.crt ${SUPER_REGISTRY_HOST} ${SUPER_CERTS_DIR}
+ca-initializer-linux ${SUPER_CERT_INITIALIZER} /usr/local/share/ca-certificates/superprotocol-ca.crt ${SUPER_REGISTRY_HOST} ${SUPER_CERTS_DIR}
 ls -la ${SUPER_CERTS_DIR}
 
 # create kubernetes secret with TLS for docker registry

@@ -304,9 +304,6 @@ mkdir -p $SUPER_SCRIPT_DIR/opt/hauler
 cp *.tar.zst $SUPER_SCRIPT_DIR/opt/hauler/
 rm -rf /opt/hauler/*
 
-mkdir -p $SUPER_SCRIPT_DIR/certs/
-cd $SUPER_SCRIPT_DIR/certs/
-curl -k https://ca.tee-dev.superprotocol.com:44443/api/v1/pki/certs/ca > ca.crt
-cp ca.crt /usr/local/share/ca-certificates/
+# update CA, add trusted self-signed CA from Super Protocol
 update-ca-certificates --fresh
 awk -v cmd='openssl x509 -noout -subject' '/BEGIN/{close(cmd)};{print | cmd}' < /etc/ssl/certs/ca-certificates.crt | grep -i 'super'

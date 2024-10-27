@@ -399,7 +399,7 @@ metadata:
 ---
 
 apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
+kind: ClusterRole
 metadata:
   name: super-aw-role
   namespace: argocd
@@ -424,7 +424,7 @@ rules:
 ---
 
 apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+kind: ClusterRoleBinding
 metadata:
   name: super-aw-binding
   namespace: argocd
@@ -433,9 +433,48 @@ subjects:
   name: super-aw-sa
   namespace: argocd
 roleRef:
-  kind: Role
+  kind: ClusterRole
   name: super-aw-role
   apiGroup: rbac.authorization.k8s.io
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pki-curl-config
+  namespace: denis-test
+data:
+  default.conf: |-
+    clientCertProvider:
+      type: pki-ca
+      challengeType: untrusted
+      baseUrl: https://ca-subroot1.tee-dev.superprotocol.com:44443/api/v1/pki/
+      caBundle: |
+        -----BEGIN CERTIFICATE-----
+        MIID7TCCAtWgAwIBAgIBATANBgkqhkiG9w0BAQsFADB2MSIwIAYDVQQDExlTdXBl
+        clByb3RvY29sIFRFRSBSb290IENBMQswCQYDVQQGEwJVUzELMAkGA1UECBMCTlkx
+        ETAPBgNVBAcTCE5ldyBZb3JrMRYwFAYDVQQKEw1TdXBlclByb3RvY29sMQswCQYD
+        VQQLEwJJVDAeFw0yNDA4MDEwMDAwMDBaFw0zNDA4MDEwMDAwMDBaMHYxIjAgBgNV
+        BAMTGVN1cGVyUHJvdG9jb2wgVEVFIFJvb3QgQ0ExCzAJBgNVBAYTAlVTMQswCQYD
+        VQQIEwJOWTERMA8GA1UEBxMITmV3IFlvcmsxFjAUBgNVBAoTDVN1cGVyUHJvdG9j
+        b2wxCzAJBgNVBAsTAklUMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA
+        vyaTmEnNuXjj3m80DLYpQkO2PZhT6C0YdQgLxilyUsRUtQinS88Q2Eof3h0NeqB2
+        OMlDMFHRVsIYoi9sdPCINuyYajGy2XUL69al2a2OwiThbZtG6etUEOsBAJmLtnTt
+        IDVmzC8p8C+ZMSpu8bZ3AZNeLxHFY2FdZhqYj3FuWgTLwkvERBnJeVMMsSrz99qD
+        0hLUDo3iGXw99qsGCLlJC3p+S8NoClc9VjOA7x0+nE9zYrSHqwhwRC+tHdMOBUvd
+        5/tPZuDgS3TU++0reo2qnd/O0U59C8XsjP1CrXkz5LDzPSZmMWlaB7hU6edOiUQS
+        h8gskt4JNsFCnc0NamCstwIDAQABo4GFMIGCMAwGA1UdEwQFMAMBAf8wCwYDVR0P
+        BAQDAgL0MB0GA1UdJQQWMBQGCCsGAQUFBwMBBggrBgEFBQcDAjAdBgNVHQ4EFgQU
+        jBSiEoknNMPDd9iKVPz0xmseNF4wJwYDVR0RBCAwHoIcY2EudGVlLWRldi5zdXBl
+        cnByb3RvY29sLmNvbTANBgkqhkiG9w0BAQsFAAOCAQEAPBNZ5xm893wUFxKvxbeW
+        V8iPL5rOcACIsPzTo7taF8imkb8UQGA6ofpPPZz59YFayNkVV2xKIi9N1x8iI8lg
+        szGfsvGm9vvgREl+U5tml1guOxv+DTNAR+vYh91VN/Fg3EoMBomMscQccIHMiuFQ
+        C6ru6D0x7aXX8VhYVeDJaJJd+Il/DV3xaFPcMRFhrXLJTBb+JOsnT0kTw5C3RREb
+        DVeduduR+4w6Xdz5XUn34iognpSl05ByO8pGQc2NgZIdpyLIIetFPFwITnrFJOV/
+        XryT5KVK0PaBSuGAMCCV2wQS9TYVDJwn/Kv7fAJ8Kte4UBBC7vSfEtdGXdT5dcYE
+        fw==
+        -----END CERTIFICATE-----   
+    
 
 ---
 
@@ -459,6 +498,46 @@ spec:
           tasks:
             - name: apply-manifests-from-host
               template: apply-manifests-from-host
+            - name: get-secret-manifests
+              template: get-secret-manifests
+            - name: apply-secret-manifests
+              template: apply-secret-manifests
+              depends: get-secret-manifests
+
+      - name: get-secret-manifests
+        container:
+          image: registry.superprotocol.local:5000/super-protocol/tee-pki-curl:v1.4.3
+          command: [sh, -c]
+          args:
+            - |
+              set -e
+              mkdir -p /super-protocol-mounted-directory/sp_deploy
+              rm -rf /super-protocol-mounted-directory/sp_deploy/*
+              node dist/app.js https://secrets.tee-dev.superprotocol.com:44443/repos/Super-Protocol/tdx-vm-secrets/tarball/main --config /super-protocol-mounted-directory/sp_pki.conf > /tmp/secrets_repo.tar.gz
+              mkdir -p /tmp/secrets_repo
+              cd /tmp/secrets_repo
+              tar -xzf /tmp/secrets_repo.tar.gz
+              inner_dir=$(find ./ -mindepth 1 -maxdepth 1 -type d)
+              cd $inner_dir
+              cp -r k8s/* /super-protocol-mounted-directory/sp_deploy/
+          volumeMounts:
+            - name: sp-config-volume
+              mountPath: /super-protocol-mounted-directory
+
+      - name: apply-secret-manifests
+        container:
+          image: bitnami/kubectl
+          command: [ sh, -c ]
+          args:
+            - |
+              set -e
+              cd /super-protocol-mounted-directory/sp_deploy
+              for file in *.yaml; do
+                kubectl apply -f "$file"
+              done
+          volumeMounts:
+            - name: sp-config-volume
+              mountPath: /super-protocol-mounted-directory
 
       - name: apply-manifests-from-host
         container:
@@ -466,6 +545,7 @@ spec:
           command: [sh, -c]
           args:
             - |
+              set -e
               cd /super-protocol-mounted-directory/init
               ls -la
               for file in *.yaml; do

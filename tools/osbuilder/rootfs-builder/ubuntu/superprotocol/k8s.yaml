@@ -447,7 +447,10 @@ data:
   default.conf: |-
     clientCertProvider:
       type: pki-ca
-      challengeType: untrusted
+      challenge:
+        type: untrusted
+        idHex: aaaaaa
+        commonIdHex: aaaaaa
       baseUrl: https://ca-subroot1.tee-dev.superprotocol.com:44443/api/v1/pki/
       caBundle: |
         -----BEGIN CERTIFICATE-----

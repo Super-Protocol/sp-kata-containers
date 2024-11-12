@@ -442,7 +442,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: pki-curl-config
-  namespace: denis-test
+  namespace: argocd
 data:
   default.conf: |-
     clientCertProvider:
@@ -476,8 +476,7 @@ data:
         DVeduduR+4w6Xdz5XUn34iognpSl05ByO8pGQc2NgZIdpyLIIetFPFwITnrFJOV/
         XryT5KVK0PaBSuGAMCCV2wQS9TYVDJwn/Kv7fAJ8Kte4UBBC7vSfEtdGXdT5dcYE
         fw==
-        -----END CERTIFICATE-----   
-    
+        -----END CERTIFICATE-----
 
 ---
 
@@ -487,11 +486,13 @@ metadata:
   name: super-init-manifests
   namespace: argocd
 spec:
+  concurrencyPolicy: 'Replace'
   schedule: '*/5 * * * *'
+  stopStrategy:
+    expression: 'cronworkflow.succeeded >= 1'
+  successfulJobsHistoryLimit: 1
+  suspend: false
   timezone: 'UTC'
-  concurrencyPolicy: "Replace"      # Default to "Allow"
-  successfulJobsHistoryLimit: 2     # Default 3
-  suspend: false                    # Set to "true" to suspend scheduling
   workflowSpec:
     serviceAccountName: super-aw-sa
     entrypoint: main
@@ -499,13 +500,44 @@ spec:
       - name: main
         dag:
           tasks:
-            - name: apply-manifests-from-host
-              template: apply-manifests-from-host
+            - name: patch-pki-config-challenge
+              template: patch-pki-config-challenge
             - name: get-secret-manifests
               template: get-secret-manifests
+              depends: patch-pki-config-challenge
             - name: apply-secret-manifests
               template: apply-secret-manifests
               depends: get-secret-manifests
+            # TODO remove
+            - name: apply-manifests-from-host
+              template: apply-manifests-from-host
+
+
+      - name: patch-pki-config-challenge
+        script:
+          # TODO pin tag
+          image: bitnami/kubectl
+          command: [sh, -c]
+          source: |
+            NAMESPACE="argocd"
+            PKI_CONFIGMAP_NAME="pki-curl-config"
+            CHALLENGE_FILE="secret.sp-pki-challenge.yaml"
+            cd /super-protocol-mounted-directory/manifests
+            if [ -f $CHALLENGE_FILE ]; then
+              type=$(yq eval '.stringData.type' "$CHALLENGE_FILE")
+              idHex=$(yq eval '.stringData.idHex' "$CHALLENGE_FILE")
+              commonIdHex=$(yq eval '.stringData.commonIdHex' "$CHALLENGE_FILE")
+              PKI_CONFIG_YAML=$(kubectl get configmap "$PKI_CONFIGMAP_NAME" -n $NAMESPACE -o yaml | \
+                sed -e "s/idHex: .*/idHex: $idHex/" \
+                    -e "s/commonIdHex: .*/commonIdHex: $commonIdHex/" \
+                    -e "s/type: .*/type: $type/")
+              filtered_configmap=$(echo "$PKI_CONFIG_YAML" | yq eval "del(.metadata) | .metadata.name = \"$PKI_CONFIGMAP_NAME\"" -)
+              echo "$filtered_configmap" | kubectl apply -n $NAMESPACE -f -
+            fi
+          volumeMounts:
+            - name: sp-config-volume
+              mountPath: /super-protocol-mounted-directory
+
 
       - name: get-secret-manifests
         container:
@@ -514,34 +546,39 @@ spec:
           args:
             - |
               set -e
-              mkdir -p /super-protocol-mounted-directory/sp_deploy
-              rm -rf /super-protocol-mounted-directory/sp_deploy/*
-              node dist/app.js https://secrets.tee-dev.superprotocol.com:44443/repos/Super-Protocol/tdx-vm-secrets/tarball/main --config /super-protocol-mounted-directory/sp_pki.conf > /tmp/secrets_repo.tar.gz
-              mkdir -p /tmp/secrets_repo
-              cd /tmp/secrets_repo
-              tar -xzf /tmp/secrets_repo.tar.gz
+              SD=/opt/super/deploy
+              rm -rf $SD && mkdir -p $SD && cd $SD
+              node dist/app.js https://secrets.tee-dev.superprotocol.com:44443/repos/Super-Protocol/tdx-vm-secrets/tarball/main --config /pki-config/default.conf > $SD/secrets_repo.tar.gz
+              mkdir -p $SD/secrets_repo && cd $SD/secrets_repo
+              tar -xzf $SD/secrets_repo.tar.gz
               inner_dir=$(find ./ -mindepth 1 -maxdepth 1 -type d)
               cd $inner_dir
-              cp -r k8s/* /super-protocol-mounted-directory/sp_deploy/
+              cp -r k8s/* $SD/
           volumeMounts:
-            - name: sp-config-volume
-              mountPath: /super-protocol-mounted-directory
+            - name: sp-deploy
+              mountPath: /opt/super
+            - name: pki-config
+              mountPath: /pki-config
+              readOnly: true
+
 
       - name: apply-secret-manifests
         container:
+          # TODO pin tag
           image: bitnami/kubectl
-          command: [ sh, -c ]
+          command: [sh, -c]
           args:
             - |
               set -e
-              cd /super-protocol-mounted-directory/sp_deploy
+              cd /opt/super/deploy
               for file in *.yaml; do
                 kubectl apply -f "$file"
               done
           volumeMounts:
-            - name: sp-config-volume
-              mountPath: /super-protocol-mounted-directory
+            - name: sp-deploy
+              mountPath: /opt/super
 
+      # TODO remove
       - name: apply-manifests-from-host
         container:
           image: bitnami/kubectl
@@ -549,7 +586,7 @@ spec:
           args:
             - |
               set -e
-              cd /super-protocol-mounted-directory/init
+              cd /super-protocol-mounted-directory/manifests
               ls -la
               for file in *.yaml; do
                 kubectl apply -f "$file"
@@ -563,3 +600,10 @@ spec:
       hostPath:
         path: /super-protocol-mounted-directory
         type: Directory
+    - name: sp-deploy
+      hostPath:
+        path: /opt/super
+        type: Directory
+    - name: pki-config
+      configMap:
+        name: pki-curl-config

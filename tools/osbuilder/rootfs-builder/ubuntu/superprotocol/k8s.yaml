@@ -208,15 +208,15 @@ spec:
         create: true
     controller:
       image:
-        tag: v3.5.11@sha256:b7462c43623506d05865bfe7ab5b3b3e1f9c8b3ee019bc74239e1b7f766db73c
+        tag: v3.6.0-rc3@sha256:d98a9c2c0062fbf8d92035099215a65be600754c4bec785f42f53b7b123fbacb
       workflowNamespaces:
         - super-protocol
     executor:
       image:
-        tag: v3.5.11@sha256:4a576a3fe37bf8351117d00be6febf2a93f70840736469be2eeb7c21a6b368e0
+        tag: v3.6.0-rc3@sha256:f5431cdf52db35e03f6979ba60097dae3d354561a8b3645717b72ca191514bd3
     server:
       image:
-        tag: v3.5.11@sha256:a5ec2d37d9fe80e0144098f1cdcac4626113cb41e0c5a69e213480d4322782f8
+        tag: v3.6.0-rc3@sha256:b1b4e421430f2fc4d2534b0dd888c3a6fa2329a5abb1e4fe273f673775fa645d
       authModes:
         - server
 
@@ -280,15 +280,26 @@ data:
   any: |-
     version: v1
     flags:
-      migStrategy: none
+      migStrategy: mixed
     sharing:
       timeSlicing:
         renameByDefault: false
         failRequestsGreaterThanOne: false
         resources:
-          - name: nvidia.com/gpu
-            replicas: 1000
-
+        - name: nvidia.com/gpu
+          replicas: 1000
+        - name: nvidia.com/mig-1g.12gb
+          replicas: 7
+        - name: nvidia.com/mig-1g.24gb
+          replicas: 4
+        - name: nvidia.com/mig-2g.24gb
+          replicas: 3
+        - name: nvidia.com/mig-3g.47gb
+          replicas: 2
+        - name: nvidia.com/mig-4g.47gb
+          replicas: 1
+        - name: nvidia.com/mig-7g.94gb
+          replicas: 1
 ---
 
 apiVersion: helm.cattle.io/v1
@@ -412,6 +423,10 @@ rules:
   verbs: ["get", "list", "watch", "create", "delete", "update", "patch", "scale"]
 
 - apiGroups: ["argoproj.io"]
+  resources: ["applications", "applicationsets", "appprojects"]
+  verbs: ["create", "delete", "get", "list", "patch", "update", "watch"]
+
+- apiGroups: ["argoproj.io"]
   resources: ["workflowtaskresults"]
   verbs: ["create", "patch"]
 - apiGroups: ["argoproj.io"]
@@ -436,6 +451,7 @@ roleRef:
   kind: ClusterRole
   name: super-aw-role
   apiGroup: rbac.authorization.k8s.io
+
 ---
 
 apiVersion: v1

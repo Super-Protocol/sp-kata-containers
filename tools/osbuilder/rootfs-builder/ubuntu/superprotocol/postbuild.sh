@@ -48,13 +48,9 @@ run_postbuild() {
 
     cp ${script_dir}/nvidia-persistenced.service ${rootfs_dir}/usr/lib/systemd/system/
 
-    # Secure password handling without environment variables
     log "INFO" "Configuring root account security"
-    # Generate and set hashed password directly
-    chroot $rootfs_dir usermod -p $(openssl rand -base64 32 | openssl passwd -6  -stdin) root
-    # Lock root account for additional security
-    log "INFO" "Locking root account"
-    chroot $rootfs_dir usermod -s /usr/sbin/nologin root
+    # Generate random string to broke the password hash
+    chroot $rootfs_dir usermod -p "$(head -c 32 /dev/urandom | base64)" root
 
     # Configure SSH security
     if [ -f "${rootfs_dir}/etc/ssh/sshd_config" ]; then

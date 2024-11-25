@@ -55,7 +55,6 @@ run_postbuild() {
     # Configure SSH security
     if [ -f "${rootfs_dir}/etc/ssh/sshd_config" ]; then
         log "INFO" "Hardening SSH configuration"
-        echo "PermitRootLogin no" >> "${rootfs_dir}/etc/ssh/sshd_config"
         echo "MaxAuthTries 3" >> "${rootfs_dir}/etc/ssh/sshd_config"
         echo "PasswordAuthentication no" >> "${rootfs_dir}/etc/ssh/sshd_config"
     fi

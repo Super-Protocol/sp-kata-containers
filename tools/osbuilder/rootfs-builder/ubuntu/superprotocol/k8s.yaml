@@ -273,6 +273,26 @@ data:
           replicas: 1000
 ---
 
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mps-config-all
+  namespace: gpu-operator
+data:
+  any: |-
+    version: v1
+    flags:
+      migStrategy: none
+    sharing:
+      mps:
+        renameByDefault: false
+        failRequestsGreaterThanOne: false
+        resources:
+        - name: nvidia.com/gpu
+          replicas: 10
+
+---
+
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
@@ -280,7 +300,7 @@ metadata:
   namespace: gpu-operator
 spec:
   repo: https://nvidia.github.io/gpu-operator
-  version: v24.3.0
+  version: v24.9.1
   chart: gpu-operator
   targetNamespace: gpu-operator
   valuesContent: |-
@@ -290,7 +310,7 @@ spec:
     #  nodefeaturerules: true
     devicePlugin:
       config:
-        name: time-slicing-config-all
+        name: mps-config-all
         default: any
     toolkit:
       installDir: "/opt/nvidia"

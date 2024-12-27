@@ -312,6 +312,8 @@ spec:
       config:
         name: mps-config-all
         default: any
+      mps:
+        root: "/opt/nvidia/mps"
     toolkit:
       installDir: "/opt/nvidia"
       env:

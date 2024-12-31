@@ -341,7 +341,7 @@ spec:
     server: https://kubernetes.default.svc
   project: default
   source:
-    path: argo/clusters/virtual-machine
+    path: argo/clusters/virtual-machine/main
     repoURL: git@github.com:Super-Protocol/argo-vm.git
     targetRevision: main # argo-vm-selected-branch
   syncPolicy:

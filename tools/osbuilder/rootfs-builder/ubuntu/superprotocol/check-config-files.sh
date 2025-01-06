@@ -30,14 +30,14 @@ ARGO_BRANCH=$(cat /proc/cmdline | grep -o 'argo_branch=[^ ]*' | cut -d= -f2)
 if [[ -z "$ARGO_BRANCH" ]]; then
     ARGO_BRANCH="main"
 fi
-ARGO_BRANCH=$(cat /proc/cmdline | grep -o 'argo_path=[^ ]*' | cut -d= -f2)
+ARGO_PATH=$(cat /proc/cmdline | grep -o 'argo_path=[^ ]*' | cut -d= -f2)
 if [[ -z "$ARGO_PATH" ]]; then
     ARGO_PATH="main"
 fi
 CMDLINE=$(cat /proc/cmdline)
 if [[ "$CMDLINE" == *"sp-debug=true"* ]]; then
     sed -i "s/targetRevision: main # argo-vm-selected-branch/targetRevision: $ARGO_BRANCH/" $K8S
-    sed -i "s|path: argo/clusters/virtual-machine/main|path: argo/clusters/virtual-machine/$ARGO_PATH" $K8S
+    sed -i "s|path: argo/clusters/virtual-machine/main|path: argo/clusters/virtual-machine/$ARGO_PATH|" $K8S
 else
     echo "k8s.yaml not patched, sp-debug=false"
 fi

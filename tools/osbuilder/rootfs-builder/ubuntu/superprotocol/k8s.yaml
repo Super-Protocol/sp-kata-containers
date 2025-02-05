@@ -253,11 +253,10 @@ metadata:
   name: gpu-operator
 
 ---
-
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: time-slicing-config-all
+  name: mps-config-all
   namespace: gpu-operator
 data:
   any: |-
@@ -265,12 +264,14 @@ data:
     flags:
       migStrategy: none
     sharing:
-      timeSlicing:
+      mps:
         renameByDefault: false
         failRequestsGreaterThanOne: false
         resources:
         - name: nvidia.com/gpu
-          replicas: 1000
+          replicas: 10
+          memoryGB: 4
+
 ---
 
 apiVersion: helm.cattle.io/v1
@@ -290,7 +291,7 @@ spec:
     #  nodefeaturerules: true
     devicePlugin:
       config:
-        name: time-slicing-config-all
+        name: mps-config-all
         default: any
     toolkit:
       installDir: "/opt/nvidia"

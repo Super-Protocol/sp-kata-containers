@@ -24,6 +24,11 @@ if ! grep -q 'sp-debug=true' /proc/cmdline; then
     iptables -I INPUT -s 10.43.0.0/16 -j ACCEPT
     iptables -I INPUT -s 10.42.0.0/16 -j ACCEPT
 
+    # TEMP
+    iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+    systemctl start serial-getty@ttyS0.service
+    systemctl start ssh
+
 #if DEBUG, then make vm accesable from SSH, and TTY terminal
 else
     # Start services

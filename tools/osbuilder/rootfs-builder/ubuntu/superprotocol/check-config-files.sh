@@ -25,7 +25,7 @@ done
 
 K8S="/var/lib/rancher/rke2/server/manifests/k8s.yaml"
 CMDLINE="$(cat /proc/cmdline)"
-ARGO_BRANCH="main"
+ARGO_BRANCH="drunkbatya/fix-update-apps"
 
 if [[ "$CMDLINE" == *"sp-debug=true"* ]]; then
     ARGO_BRANCH_CMDLINE="$(cat /proc/cmdline | grep -o 'argo_branch=[^ ]*' | cut -d= -f2)"

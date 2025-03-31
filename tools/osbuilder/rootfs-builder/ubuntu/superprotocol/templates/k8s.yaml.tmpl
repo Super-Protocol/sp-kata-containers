@@ -389,10 +389,6 @@ rules:
   verbs: ["list", "get", "patch"]
 
 - apiGroups: [""]
-  resources: ["namespaces"]
-  verbs: ["get", "create"]
-
-- apiGroups: [""]
   resources: ["pods", "configmaps", "secrets"]
   verbs: ["create", "delete", "get", "list", "patch", "update", "watch"]
 - apiGroups: ["apps", "extensions"]

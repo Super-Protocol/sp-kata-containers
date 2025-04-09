@@ -149,9 +149,6 @@ spec:
   version: 7.6.5
   targetNamespace: argocd
   valuesContent: |-
-    global:
-      logging:
-        format: json
     configs:
       cm:
         ui.bannercontent: "SP-CC-VM"
@@ -163,6 +160,8 @@ spec:
     dex:
       enabled: false
     global:
+      logging:
+        format: json
       image:
         #tag: quay.io/argoproj/argocd:v2.12.4
         tag: v2.12.4

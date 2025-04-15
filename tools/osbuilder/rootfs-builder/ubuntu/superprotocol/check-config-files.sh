@@ -39,3 +39,33 @@ if [[ "$CURRENT_ARGO_BRANCH" != "$ARGO_BRANCH" ]]; then
     echo "Setting $ARGO_BRANCH in $K8S, current: $CURRENT_ARGO_BRANCH"
     sed -ri "s|targetRevision:\W+\w+|targetRevision: $ARGO_BRANCH|" "$K8S";
 fi
+
+# detect_cpu_type
+CPU_TYPE_CONFIGMAP_MANIFEST="/var/lib/rancher/rke2/server/manifests/cpu-type-configmap.yaml";
+
+# i can't cover this into function due using EOF mark, it will look ugly..
+# at this moment other part of script was successfully executed, exit 0 will not break anyting
+if [[ -f "$CPU_TYPE_CONFIGMAP_MANIFEST" ]]; then  # if already defined
+    exit 0;
+fi
+
+if [[ -f "/etc/tdx-attest.conf" ]] \
+    && [[ -c "/dev/tdx_guest" ]]; then
+    CPU_TYPE="tdx";
+elif [[ -c "/dev/sev-guest" ]]; then
+    CPU_TYPE="sev-snp";
+elif false; then  # TODO: add sgx?
+    CPU_TYPE="sgx";
+else
+    CPU_TYPE="untrusted";
+fi
+
+cat <<EOF > "$CPU_TYPE_CONFIGMAP_MANIFEST";
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cpu-type
+  namespace: super-protocol
+data:
+  cpu-type: "$CPU_TYPE"
+EOF

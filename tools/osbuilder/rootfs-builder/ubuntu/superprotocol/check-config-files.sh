@@ -54,11 +54,6 @@ if [[ -f "/etc/tdx-attest.conf" ]] \
     CPU_TYPE="tdx";
 elif [[ -c "/dev/sev-guest" ]]; then
     CPU_TYPE="sev-snp";
-elif [[ -s "/var/run/aesmd/aesm.socket" ]] \
-    && [[ -c "/dev/sgx_provision" ]] \
-    && [[ -c "/dev/sgx_enclave" ]] \
-    && [[ -d "/dev/sgx" ]]; then
-    CPU_TYPE="sgx";
 else
     CPU_TYPE="untrusted";
 fi

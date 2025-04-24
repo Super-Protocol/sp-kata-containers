@@ -426,11 +426,50 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 
 ---
-
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: pki-curl-config
+  name: pki-curl-config-untrusted
+  namespace: argocd
+data:
+  default.conf: |-
+    clientCertProvider:
+      type: pki-ca
+      challenge:
+        type: untrusted
+        idHex: ""
+        commonIdHex: ""
+      baseUrl: https://ca-subroot1.tee-dev.superprotocol.com:44443/api/v1/pki/
+      caBundle: |
+        -----BEGIN CERTIFICATE-----
+        MIID7TCCAtWgAwIBAgIBATANBgkqhkiG9w0BAQsFADB2MSIwIAYDVQQDExlTdXBl
+        clByb3RvY29sIFRFRSBSb290IENBMQswCQYDVQQGEwJVUzELMAkGA1UECBMCTlkx
+        ETAPBgNVBAcTCE5ldyBZb3JrMRYwFAYDVQQKEw1TdXBlclByb3RvY29sMQswCQYD
+        VQQLEwJJVDAeFw0yNDA4MDEwMDAwMDBaFw0zNDA4MDEwMDAwMDBaMHYxIjAgBgNV
+        BAMTGVN1cGVyUHJvdG9jb2wgVEVFIFJvb3QgQ0ExCzAJBgNVBAYTAlVTMQswCQYD
+        VQQIEwJOWTERMA8GA1UEBxMITmV3IFlvcmsxFjAUBgNVBAoTDVN1cGVyUHJvdG9j
+        b2wxCzAJBgNVBAsTAklUMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA
+        vyaTmEnNuXjj3m80DLYpQkO2PZhT6C0YdQgLxilyUsRUtQinS88Q2Eof3h0NeqB2
+        OMlDMFHRVsIYoi9sdPCINuyYajGy2XUL69al2a2OwiThbZtG6etUEOsBAJmLtnTt
+        IDVmzC8p8C+ZMSpu8bZ3AZNeLxHFY2FdZhqYj3FuWgTLwkvERBnJeVMMsSrz99qD
+        0hLUDo3iGXw99qsGCLlJC3p+S8NoClc9VjOA7x0+nE9zYrSHqwhwRC+tHdMOBUvd
+        5/tPZuDgS3TU++0reo2qnd/O0U59C8XsjP1CrXkz5LDzPSZmMWlaB7hU6edOiUQS
+        h8gskt4JNsFCnc0NamCstwIDAQABo4GFMIGCMAwGA1UdEwQFMAMBAf8wCwYDVR0P
+        BAQDAgL0MB0GA1UdJQQWMBQGCCsGAQUFBwMBBggrBgEFBQcDAjAdBgNVHQ4EFgQU
+        jBSiEoknNMPDd9iKVPz0xmseNF4wJwYDVR0RBCAwHoIcY2EudGVlLWRldi5zdXBl
+        cnByb3RvY29sLmNvbTANBgkqhkiG9w0BAQsFAAOCAQEAPBNZ5xm893wUFxKvxbeW
+        V8iPL5rOcACIsPzTo7taF8imkb8UQGA6ofpPPZz59YFayNkVV2xKIi9N1x8iI8lg
+        szGfsvGm9vvgREl+U5tml1guOxv+DTNAR+vYh91VN/Fg3EoMBomMscQccIHMiuFQ
+        C6ru6D0x7aXX8VhYVeDJaJJd+Il/DV3xaFPcMRFhrXLJTBb+JOsnT0kTw5C3RREb
+        DVeduduR+4w6Xdz5XUn34iognpSl05ByO8pGQc2NgZIdpyLIIetFPFwITnrFJOV/
+        XryT5KVK0PaBSuGAMCCV2wQS9TYVDJwn/Kv7fAJ8Kte4UBBC7vSfEtdGXdT5dcYE
+        fw==
+        -----END CERTIFICATE-----
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pki-curl-config-tdx
   namespace: argocd
 data:
   default.conf: |-
@@ -441,6 +480,46 @@ data:
         idHex: ""
         commonIdHex: ""
       baseUrl: https://ca-subroot1.tee-dev.superprotocol.com:44443/api/v1/pki/
+      caBundle: |
+        -----BEGIN CERTIFICATE-----
+        MIID7TCCAtWgAwIBAgIBATANBgkqhkiG9w0BAQsFADB2MSIwIAYDVQQDExlTdXBl
+        clByb3RvY29sIFRFRSBSb290IENBMQswCQYDVQQGEwJVUzELMAkGA1UECBMCTlkx
+        ETAPBgNVBAcTCE5ldyBZb3JrMRYwFAYDVQQKEw1TdXBlclByb3RvY29sMQswCQYD
+        VQQLEwJJVDAeFw0yNDA4MDEwMDAwMDBaFw0zNDA4MDEwMDAwMDBaMHYxIjAgBgNV
+        BAMTGVN1cGVyUHJvdG9jb2wgVEVFIFJvb3QgQ0ExCzAJBgNVBAYTAlVTMQswCQYD
+        VQQIEwJOWTERMA8GA1UEBxMITmV3IFlvcmsxFjAUBgNVBAoTDVN1cGVyUHJvdG9j
+        b2wxCzAJBgNVBAsTAklUMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA
+        vyaTmEnNuXjj3m80DLYpQkO2PZhT6C0YdQgLxilyUsRUtQinS88Q2Eof3h0NeqB2
+        OMlDMFHRVsIYoi9sdPCINuyYajGy2XUL69al2a2OwiThbZtG6etUEOsBAJmLtnTt
+        IDVmzC8p8C+ZMSpu8bZ3AZNeLxHFY2FdZhqYj3FuWgTLwkvERBnJeVMMsSrz99qD
+        0hLUDo3iGXw99qsGCLlJC3p+S8NoClc9VjOA7x0+nE9zYrSHqwhwRC+tHdMOBUvd
+        5/tPZuDgS3TU++0reo2qnd/O0U59C8XsjP1CrXkz5LDzPSZmMWlaB7hU6edOiUQS
+        h8gskt4JNsFCnc0NamCstwIDAQABo4GFMIGCMAwGA1UdEwQFMAMBAf8wCwYDVR0P
+        BAQDAgL0MB0GA1UdJQQWMBQGCCsGAQUFBwMBBggrBgEFBQcDAjAdBgNVHQ4EFgQU
+        jBSiEoknNMPDd9iKVPz0xmseNF4wJwYDVR0RBCAwHoIcY2EudGVlLWRldi5zdXBl
+        cnByb3RvY29sLmNvbTANBgkqhkiG9w0BAQsFAAOCAQEAPBNZ5xm893wUFxKvxbeW
+        V8iPL5rOcACIsPzTo7taF8imkb8UQGA6ofpPPZz59YFayNkVV2xKIi9N1x8iI8lg
+        szGfsvGm9vvgREl+U5tml1guOxv+DTNAR+vYh91VN/Fg3EoMBomMscQccIHMiuFQ
+        C6ru6D0x7aXX8VhYVeDJaJJd+Il/DV3xaFPcMRFhrXLJTBb+JOsnT0kTw5C3RREb
+        DVeduduR+4w6Xdz5XUn34iognpSl05ByO8pGQc2NgZIdpyLIIetFPFwITnrFJOV/
+        XryT5KVK0PaBSuGAMCCV2wQS9TYVDJwn/Kv7fAJ8Kte4UBBC7vSfEtdGXdT5dcYE
+        fw==
+        -----END CERTIFICATE-----
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pki-curl-config-sev-snp
+  namespace: argocd
+data:
+  default.conf: |-
+    clientCertProvider:
+      type: pki-ca
+      challenge:
+        type: amd-sev
+        idHex: ""
+        commonIdHex: ""
+      baseUrl: https://ca-subroot2.tee-dev.superprotocol.io:44443/api/v1/pki/
       caBundle: |
         -----BEGIN CERTIFICATE-----
         MIID7TCCAtWgAwIBAgIBATANBgkqhkiG9w0BAQsFADB2MSIwIAYDVQQDExlTdXBl
@@ -497,6 +576,11 @@ spec:
               depends: pki-config-challenge
               when: "{{tasks.pki-config-challenge.outputs.parameters.challenge-type}} == tdx"
 
+            - name: get-secrets-for-sev-snp
+              template: get-secrets-for-sev-snp
+              depends: pki-config-challenge
+              when: "{{tasks.pki-config-challenge.outputs.parameters.challenge-type}} == sev-snp"
+
             - name: get-secrets-for-untrusted
               template: get-secrets-for-untrusted
               depends: pki-config-challenge
@@ -515,7 +599,7 @@ spec:
         script:
           # TODO pin tag
           image: bitnami/kubectl
-          command: [sh, -c]
+          command: [bash, -c]
           source: |
             set -e
             NAMESPACE="argocd"
@@ -523,32 +607,31 @@ spec:
             CHALLENGE_FILE="secret.sp-pki-challenge.yaml"
             cd "$TMPL_SUPER_PROTOCOL_MOUNTED_DIRECTORY/manifests"
 
-            # Is PKI challenge overridden via custom / developer tokens? 
-            if [ -f $CHALLENGE_FILE ]; then
-              idHex=$(yq eval '.stringData.idHex' "$CHALLENGE_FILE")
-              commonIdHex=$(yq eval '.stringData.commonIdHex' "$CHALLENGE_FILE")
-              type=$(yq eval '.stringData.type' "$CHALLENGE_FILE")
-              # Is the VM running in debug mode?
-              SP_DEBUG=$(grep -oP 'sp-debug=\K\S+' /host-kernel-cmdline)
-              if [ $SP_DEBUG = "true" ]; then
-                type="untrusted"
+            # Is the VM running in debug mode?
+            SP_DEBUG=$(grep -oP 'sp-debug=\K\S+' /host-kernel-cmdline)
+            if [[ $SP_DEBUG == "true" ]]; then
+              CPU_TYPE="untrusted"
+              # Is PKI challenge overridden via custom / developer tokens?
+              if [[ -f $CHALLENGE_FILE ]]; then
+                idHex=$(yq eval '.stringData.idHex' "$CHALLENGE_FILE")
+                commonIdHex=$(yq eval '.stringData.commonIdHex' "$CHALLENGE_FILE")
+                # update configmap
+                filtered_configmap=$(kubectl get configmap "$PKI_CONFIGMAP_NAME-untrusted" -n $NAMESPACE -o yaml | \
+                  yq eval "del(.metadata) | .metadata.name = \"$PKI_CONFIGMAP_NAME-untrusted\"" - | \
+                    sed -e "s/idHex: .*/idHex: $idHex/" \
+                    -e "s/commonIdHex: .*/commonIdHex: $commonIdHex/")
+                echo "$filtered_configmap" | kubectl apply -n $NAMESPACE -f -
               fi
-              # update configmap
-              filtered_configmap=$(kubectl get configmap "$PKI_CONFIGMAP_NAME" -n $NAMESPACE -o yaml | \
-                yq eval "del(.metadata) | .metadata.name = \"$PKI_CONFIGMAP_NAME\"" - | \
-                sed -e "s/idHex: .*/idHex: $idHex/" \
-                    -e "s/commonIdHex: .*/commonIdHex: $commonIdHex/" \
-                    -e "/challenge:/,/^$/s/type: [^ ]*/type: $type/")      
-              echo "$filtered_configmap" | kubectl apply -n $NAMESPACE -f -
+            else
+                # created by tools/osbuilder/rootfs-builder/ubuntu/superprotocol/check-config-files.sh
+                CPU_TYPE=$(kubectl -n super-protocol get configmaps cpu-type -o yaml 2>/dev/null | yq -er '.data.cpu-type' 2>/dev/null | tr -d '\n' | grep -v 'null' || echo);
+                if [[ -z "$CPU_TYPE" ]];then
+                    echo "Failed to get CPU type from cpu-type configmap in super-protocol ns!";
+                    exit 1;
+                fi
             fi
 
-            # get challenge and pass it as result output to next steps
-            type=$(kubectl get configmap pki-curl-config -n argocd -o jsonpath='{.data.default\.conf}' | yq e '.clientCertProvider.challenge.type' -)
-            if [ $type = "tdx" ]; then
-              echo "tdx" > /tmp/challenge-type
-            else
-              echo "untrusted" > /tmp/challenge-type
-            fi
+            echo "$CPU_TYPE" > /tmp/challenge-type
           volumeMounts:
             - name: sp-config-volume
               mountPath: "$TMPL_SUPER_PROTOCOL_MOUNTED_DIRECTORY"
@@ -564,7 +647,7 @@ spec:
 
       - name: get-secrets-for-tdx
         container:
-          image: registry.superprotocol.local:5000/super-protocol/tee-pki-curl:v1.4.4
+          image: registry.superprotocol.local:5000/super-protocol/tee-pki-curl:v1.4.6
           command: [sh, -c]
           args:
             - |
@@ -580,7 +663,7 @@ spec:
           volumeMounts:
             - name: sp-deploy
               mountPath: /opt/super
-            - name: pki-config
+            - name: pki-config-tdx
               mountPath: /pki-config
               readOnly: true
             - name: dev-tdx-guest
@@ -591,10 +674,9 @@ spec:
           securityContext:
             privileged: true
 
-
-      - name: get-secrets-for-untrusted
+      - name: get-secrets-for-sev-snp
         container:
-          image: registry.superprotocol.local:5000/super-protocol/tee-pki-curl:v1.4.4
+          image: registry.superprotocol.local:5000/super-protocol/tee-pki-curl:v1.4.6
           command: [sh, -c]
           args:
             - |
@@ -610,7 +692,33 @@ spec:
           volumeMounts:
             - name: sp-deploy
               mountPath: /opt/super
-            - name: pki-config
+            - name: pki-config-sev-snp
+              mountPath: /pki-config
+              readOnly: true
+            - name: dev-sev-guest
+              mountPath: /dev/sev_guest
+          securityContext:
+            privileged: true
+
+      - name: get-secrets-for-untrusted
+        container:
+          image: registry.superprotocol.local:5000/super-protocol/tee-pki-curl:v1.4.6
+          command: [sh, -c]
+          args:
+            - |
+              set -e
+              SD=/opt/super/deploy
+              rm -rf $SD && mkdir -p $SD
+              node dist/app.js https://secrets.tee-dev.superprotocol.com:44443/repos/Super-Protocol/tdx-vm-secrets/tarball/main --config /pki-config/default.conf > $SD/secrets_repo.tar.gz
+              mkdir -p $SD/secrets_repo && cd $SD/secrets_repo
+              tar -xzf $SD/secrets_repo.tar.gz
+              inner_dir=$(find ./ -mindepth 1 -maxdepth 1 -type d)
+              cd $inner_dir
+              cp -r k8s/* $SD/
+          volumeMounts:
+            - name: sp-deploy
+              mountPath: /opt/super
+            - name: pki-config-untrusted
               mountPath: /pki-config
               readOnly: true
 
@@ -660,9 +768,15 @@ spec:
       hostPath:
         path: /opt/super
         type: Directory
-    - name: pki-config
+    - name: pki-config-untrusted
       configMap:
-        name: pki-curl-config
+        name: pki-curl-config-untrusted
+    - name: pki-config-tdx
+      configMap:
+        name: pki-curl-config-tdx
+    - name: pki-config-sev-snp
+      configMap:
+        name: pki-curl-config-sev-snp
     - name: host-kernel-cmdline
       hostPath:
         path: /proc/cmdline

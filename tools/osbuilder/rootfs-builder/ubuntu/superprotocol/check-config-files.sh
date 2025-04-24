@@ -49,7 +49,9 @@ if [[ -f "$CPU_TYPE_CONFIGMAP_MANIFEST" ]]; then  # if already defined
     exit 0;
 fi
 
-if [[ -f "/etc/tdx-attest.conf" ]] \
+if [[ "$CMDLINE" == *"sp-debug=true"* ]]; then
+    CPU_TYPE="untrusted";
+elif [[ -f "/etc/tdx-attest.conf" ]] \
     && [[ -c "/dev/tdx_guest" ]]; then
     CPU_TYPE="tdx";
 elif [[ -c "/dev/sev-guest" ]]; then

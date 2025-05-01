@@ -1,12 +1,26 @@
 #!/bin/bash
+
 set -x
 
-SUPER_REGISTRY_HOST="registry.superprotocol.local"
-SUPER_CERT_INITIALIZER_URL="https://ca-subroot1.tee-dev.superprotocol.com:44443"
-SUPER_CERTS_DIR="/opt/super/certs"
-SUPER_CERT_FILEPATH="${SUPER_CERTS_DIR}/${SUPER_REGISTRY_HOST}"
+SUPER_REGISTRY_HOST="registry.superprotocol.local";
+SUPER_CERT_INITIALIZER_URL="https://ca-subroot2.tee-dev.superprotocol.io:44443";
+SUPER_CERTS_DIR="/opt/super/certs";
+SUPER_CERT_FILEPATH="$SUPER_CERTS_DIR/$SUPER_REGISTRY_HOST";
 
-mkdir -p ${SUPER_CERTS_DIR}
+CMDLINE="$(cat /proc/cmdline)";
+
+if [[ "$CMDLINE" == *"sp-debug=true"* ]]; then
+    CPU_TYPE="untrusted";
+elif [[ -f "/etc/tdx-attest.conf" ]] \
+    && [[ -c "/dev/tdx_guest" ]]; then
+    CPU_TYPE="tdx";
+elif [[ -c "/dev/sev-guest" ]]; then
+    CPU_TYPE="sev-snp";
+else
+    CPU_TYPE="untrusted";
+fi
+
+mkdir -p "$SUPER_CERTS_DIR";
 
 # generate CA & CSR & cert with key
 #openssl genrsa -out ${SUPER_CERTS_DIR}/ca.key 2048
@@ -19,11 +33,24 @@ mkdir -p ${SUPER_CERTS_DIR}
 #cp ${SUPER_CERTS_DIR}/ca.crt /usr/local/share/ca-certificates/ca.crt
 #update-ca-certificates --verbose
 
-ca-initializer-linux ${SUPER_CERT_INITIALIZER_URL} /usr/local/share/ca-certificates/superprotocol-ca.crt ${SUPER_REGISTRY_HOST} ${SUPER_CERTS_DIR}
-ls -la ${SUPER_CERTS_DIR}
+ca-initializer-linux \
+    "$CPU_TYPE" \
+    "$SUPER_CERT_INITIALIZER_URL" \
+    "/usr/local/share/ca-certificates/superprotocol-ca.crt" \
+    "$SUPER_REGISTRY_HOST" \
+    "$SUPER_CERTS_DIR";
+
+ls -la "$SUPER_CERTS_DIR";
 
 # create kubernetes secret with TLS for docker registry
-cat ${SUPER_CERT_FILEPATH}.crt ${SUPER_CERT_FILEPATH}.ca.crt > ${SUPER_CERT_FILEPATH}.bundle.crt
-/var/lib/rancher/rke2/bin/kubectl create secret tls docker-registry-tls --namespace super-protocol --cert=${SUPER_CERT_FILEPATH}.bundle.crt --key=${SUPER_CERT_FILEPATH}.key --dry-run=client --output=yaml > /var/lib/rancher/rke2/server/manifests/docker-registry-tls.yaml
+cat "$SUPER_CERT_FILEPATH.crt" "$SUPER_CERT_FILEPATH.ca.crt" > "$SUPER_CERT_FILEPATH.bundle.crt";
+
+/var/lib/rancher/rke2/bin/kubectl \
+    create secret tls docker-registry-tls \
+    --namespace super-protocol \
+    "--cert=$SUPER_CERT_FILEPATH.bundle.crt" \
+    "--key=$SUPER_CERT_FILEPATH.key" \
+    --dry-run=client \
+    --output=yaml > /var/lib/rancher/rke2/server/manifests/docker-registry-tls.yaml
 
 set +x

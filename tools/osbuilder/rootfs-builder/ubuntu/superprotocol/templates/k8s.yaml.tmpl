@@ -786,7 +786,7 @@ spec:
 
             - name: apply-secrets
               template: apply-secrets
-              depends: "get-secrets-for-tdx.Succeeded || get-secrets-for-untrusted.Succeeded"
+              depends: "get-secrets-for-tdx.Succeeded || get-secrets-for-sev-snp.Succeeded || get-secrets-for-untrusted.Succeeded"
 
             - name: force-sync-root-argocd-app
               template: force-sync-root-argocd-app
@@ -822,8 +822,8 @@ spec:
               fi
             else
                 # created by tools/osbuilder/rootfs-builder/ubuntu/superprotocol/check-config-files.sh
-                CPU_TYPE=$(kubectl -n super-protocol get configmaps cpu-type -o yaml 2>/dev/null | yq -er '.data.cpu-type' 2>/dev/null | tr -d '\n' | grep -v 'null' || echo);
-                if [[ -z "$CPU_TYPE" ]];then
+                CPU_TYPE=$(kubectl -n super-protocol get configmap cpu-type -o jsonpath='{.data.cpu-type}' 2>/dev/null);
+                if [[ -z "${CPU_TYPE:-}" ]];then
                     echo "Failed to get CPU type from cpu-type configmap in super-protocol ns!";
                     exit 1;
                 fi

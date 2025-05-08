@@ -9,9 +9,10 @@ SUPER_CERT_FILEPATH="$SUPER_CERTS_DIR/$SUPER_REGISTRY_HOST";
 
 CMDLINE="$(cat /proc/cmdline)";
 
-if [[ "$CMDLINE" == *"sp-debug=true"* ]]; then
-    CPU_TYPE="untrusted";
-elif [[ -f "/etc/tdx-attest.conf" ]] \
+# FOR DEBUGGING NEW LOGIC ONLY
+# if [[ "$CMDLINE" == *"sp-debug=true"* ]]; then
+#     CPU_TYPE="untrusted";
+if [[ -f "/etc/tdx-attest.conf" ]] \
     && [[ -c "/dev/tdx_guest" ]]; then
     CPU_TYPE="tdx";
 elif [[ -c "/dev/sev-guest" ]]; then
@@ -35,7 +36,6 @@ mkdir -p "$SUPER_CERTS_DIR";
 
 ca-initializer-linux \
     "$CPU_TYPE" \
-    "$SUPER_CERT_INITIALIZER_URL" \
     "/usr/local/share/ca-certificates/superprotocol-ca.crt" \
     "$SUPER_REGISTRY_HOST" \
     "$SUPER_CERTS_DIR";

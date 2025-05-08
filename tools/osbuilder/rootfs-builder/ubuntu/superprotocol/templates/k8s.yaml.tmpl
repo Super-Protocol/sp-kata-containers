@@ -777,7 +777,7 @@ spec:
             - name: get-secrets-for-sev-snp
               template: get-secrets-for-sev-snp
               depends: pki-config-challenge
-              when: "{{tasks.pki-config-challenge.outputs.parameters.challenge-type}} == sev-snp"
+              when: "{{tasks.pki-config-challenge.outputs.parameters.challenge-type}} == 'sev-snp'"
 
             - name: get-secrets-for-untrusted
               template: get-secrets-for-untrusted

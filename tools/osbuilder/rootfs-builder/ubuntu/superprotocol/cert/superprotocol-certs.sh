@@ -4,12 +4,13 @@ set -x
 
 SUPER_REGISTRY_HOST="registry.superprotocol.local";
 SUPER_CERT_INITIALIZER_URL="https://ca-subroot2.tee-dev.superprotocol.io:44443";
+SUPER_CERT_INITIALIZER_URL_UNTRUSTED="https://ca-subroot1.tee-dev.superprotocol.com:44443";
 SUPER_CERTS_DIR="/opt/super/certs";
 SUPER_CERT_FILEPATH="$SUPER_CERTS_DIR/$SUPER_REGISTRY_HOST";
 
 CMDLINE="$(cat /proc/cmdline)";
 
-# FOR DEBUGGING NEW LOGIC ONLY
+# TODO: FOR DEBUGGING NEW LOGIC ONLY
 # if [[ "$CMDLINE" == *"sp-debug=true"* ]]; then
 #     CPU_TYPE="untrusted";
 if [[ -f "/etc/tdx-attest.conf" ]] \
@@ -19,6 +20,7 @@ elif [[ -c "/dev/sev-guest" ]]; then
     CPU_TYPE="sev-snp";
 else
     CPU_TYPE="untrusted";
+    SUPER_CERT_INITIALIZER_URL=$SUPER_CERT_INITIALIZER_URL_UNTRUSTED;
 fi
 
 mkdir -p "$SUPER_CERTS_DIR";
@@ -36,6 +38,7 @@ mkdir -p "$SUPER_CERTS_DIR";
 
 ca-initializer-linux \
     "$CPU_TYPE" \
+    "$SUPER_CERT_INITIALIZER_URL" \
     "/usr/local/share/ca-certificates/superprotocol-ca.crt" \
     "$SUPER_REGISTRY_HOST" \
     "$SUPER_CERTS_DIR";

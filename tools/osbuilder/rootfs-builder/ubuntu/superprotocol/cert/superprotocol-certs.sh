@@ -3,47 +3,21 @@
 set -x
 
 SUPER_REGISTRY_HOST="registry.superprotocol.local";
-SUPER_CERT_INITIALIZER_URL="https://ca-subroot2.tee-dev.superprotocol.io:44443";
-SUPER_CERT_INITIALIZER_URL_UNTRUSTED="https://ca-subroot1.tee-dev.superprotocol.com:44443";
 SUPER_CERTS_DIR="/opt/super/certs";
 SUPER_CERT_FILEPATH="$SUPER_CERTS_DIR/$SUPER_REGISTRY_HOST";
-
-CMDLINE="$(cat /proc/cmdline)";
-
-# TODO: FOR DEBUGGING NEW LOGIC ONLY
-# if [[ "$CMDLINE" == *"sp-debug=true"* ]]; then
-#     CPU_TYPE="untrusted";
-if [[ -f "/etc/tdx-attest.conf" ]] \
-    && [[ -c "/dev/tdx_guest" ]]; then
-    CPU_TYPE="tdx";
-elif [[ -c "/dev/sev-guest" ]]; then
-    CPU_TYPE="sev-snp";
-else
-    CPU_TYPE="untrusted";
-    SUPER_CERT_INITIALIZER_URL=$SUPER_CERT_INITIALIZER_URL_UNTRUSTED;
-fi
 
 mkdir -p "$SUPER_CERTS_DIR";
 
 # generate CA & CSR & cert with key
-#openssl genrsa -out ${SUPER_CERTS_DIR}/ca.key 2048
-#openssl req -x509 -new -nodes -key ${SUPER_CERTS_DIR}/ca.key -sha256 -days 3650 -out ${SUPER_CERTS_DIR}/ca.crt -subj "/ST=Milk Galaxy/L=Planet Earth/O=SuperProtocol/OU=MyUnit/CN=SuperProtocol.com"
-#openssl genrsa -out ${SUPER_CERT_FILEPATH}.key 2048
-#openssl req -new -key ${SUPER_CERT_FILEPATH}.key -out ${SUPER_CERT_FILEPATH}.csr -subj "/ST=Milk Galaxy/L=Planet Earth/O=SuperProtocol/OU=MyUnit/CN=${SUPER_REGISTRY_HOST}"
-#openssl x509 -req -CA ${SUPER_CERTS_DIR}/ca.crt -CAkey ${SUPER_CERTS_DIR}/ca.key -CAcreateserial -in ${SUPER_CERT_FILEPATH}.csr -out ${SUPER_CERT_FILEPATH}.crt -days 3650 -sha256
+openssl genrsa -out ${SUPER_CERTS_DIR}/ca.key 2048
+openssl req -x509 -new -nodes -key ${SUPER_CERTS_DIR}/ca.key -sha256 -days 3650 -out ${SUPER_CERTS_DIR}/ca.crt -subj "/ST=Milk Galaxy/L=Planet Earth/O=SuperProtocol/OU=MyUnit/CN=SuperProtocol.com"
+openssl genrsa -out ${SUPER_CERT_FILEPATH}.key 2048
+openssl req -new -key ${SUPER_CERT_FILEPATH}.key -out ${SUPER_CERT_FILEPATH}.csr -subj "/ST=Milk Galaxy/L=Planet Earth/O=SuperProtocol/OU=MyUnit/CN=${SUPER_REGISTRY_HOST}"
+openssl x509 -req -CA ${SUPER_CERTS_DIR}/ca.crt -CAkey ${SUPER_CERTS_DIR}/ca.key -CAcreateserial -in ${SUPER_CERT_FILEPATH}.csr -out ${SUPER_CERT_FILEPATH}.crt -days 3650 -sha256
 
 # copy cert to local trusted store
-#cp ${SUPER_CERTS_DIR}/ca.crt /usr/local/share/ca-certificates/ca.crt
-#update-ca-certificates --verbose
-
-ca-initializer-linux \
-    "$CPU_TYPE" \
-    "$SUPER_CERT_INITIALIZER_URL" \
-    "/usr/local/share/ca-certificates/superprotocol-ca.crt" \
-    "$SUPER_REGISTRY_HOST" \
-    "$SUPER_CERTS_DIR";
-
-ls -la "$SUPER_CERTS_DIR";
+cp ${SUPER_CERTS_DIR}/ca.crt /usr/local/share/ca-certificates/ca.crt
+update-ca-certificates --verbose
 
 # create kubernetes secret with TLS for docker registry
 cat "$SUPER_CERT_FILEPATH.crt" "$SUPER_CERT_FILEPATH.ca.crt" > "$SUPER_CERT_FILEPATH.bundle.crt";

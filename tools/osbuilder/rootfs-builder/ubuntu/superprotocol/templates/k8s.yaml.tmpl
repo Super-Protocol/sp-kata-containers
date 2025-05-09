@@ -477,8 +477,6 @@ data:
       type: pki-ca
       challenge:
         type: tdx
-        idHex: ""
-        commonIdHex: ""
       baseUrl: https://ca-subroot2.tee-dev.superprotocol.io:44443/api/v1/pki/
       caBundle: |
         -----BEGIN CERTIFICATE-----
@@ -616,8 +614,6 @@ data:
       type: pki-ca
       challenge:
         type: sev-snp
-        idHex: ""
-        commonIdHex: ""
       baseUrl: https://ca-subroot2.tee-dev.superprotocol.io:44443/api/v1/pki/
       caBundle: |
         -----BEGIN CERTIFICATE-----
@@ -805,10 +801,8 @@ spec:
             CHALLENGE_FILE="secret.sp-pki-challenge.yaml"
             cd "$TMPL_SUPER_PROTOCOL_MOUNTED_DIRECTORY/manifests"
 
-            # Is the VM running in debug mode?
-            SP_DEBUG=$(grep -oP 'sp-debug=\K\S+' /host-kernel-cmdline)
-            if [[ $SP_DEBUG == "true" ]]; then
-              CPU_TYPE="untrusted"
+            CPU_TYPE=$(kubectl -n super-protocol get configmap cpu-type -o jsonpath='{.data.cpu-type}' 2>/dev/null);
+            if [[ $CPU_TYPE == "untrusted" ]]; then
               # Is PKI challenge overridden via custom / developer tokens?
               if [[ -f $CHALLENGE_FILE ]]; then
                 idHex=$(yq eval '.stringData.idHex' "$CHALLENGE_FILE")
@@ -822,7 +816,6 @@ spec:
               fi
             else
                 # created by tools/osbuilder/rootfs-builder/ubuntu/superprotocol/check-config-files.sh
-                CPU_TYPE=$(kubectl -n super-protocol get configmap cpu-type -o jsonpath='{.data.cpu-type}' 2>/dev/null);
                 if [[ -z "${CPU_TYPE:-}" ]];then
                     echo "Failed to get CPU type from cpu-type configmap in super-protocol ns!";
                     exit 1;
@@ -845,7 +838,7 @@ spec:
 
       - name: get-secrets-for-tdx
         container:
-          image: registry.superprotocol.local:5000/super-protocol/tee-pki-curl:v1.4.6
+          image: registry.superprotocol.local:5000/super-protocol/tee-pki-curl:v1.4.7
           command: [sh, -c]
           args:
             - |
@@ -874,7 +867,7 @@ spec:
 
       - name: get-secrets-for-sev-snp
         container:
-          image: registry.superprotocol.local:5000/super-protocol/tee-pki-curl:v1.4.6
+          image: registry.superprotocol.local:5000/super-protocol/tee-pki-curl:v1.4.7
           command: [sh, -c]
           args:
             - |
@@ -900,7 +893,7 @@ spec:
 
       - name: get-secrets-for-untrusted
         container:
-          image: registry.superprotocol.local:5000/super-protocol/tee-pki-curl:v1.4.6
+          image: registry.superprotocol.local:5000/super-protocol/tee-pki-curl:v1.4.7
           command: [sh, -c]
           args:
             - |

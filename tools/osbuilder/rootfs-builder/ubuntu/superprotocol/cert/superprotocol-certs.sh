@@ -3,7 +3,7 @@
 set -x
 
 SUPER_REGISTRY_HOST="registry.superprotocol.local";
-SUPER_CERTS_DIR="/opt/super/certs";
+SUPER_CERTS_DIR="/etc/super/certs";
 SUPER_CERT_FILEPATH="$SUPER_CERTS_DIR/$SUPER_REGISTRY_HOST";
 
 /var/lib/rancher/rke2/bin/kubectl \

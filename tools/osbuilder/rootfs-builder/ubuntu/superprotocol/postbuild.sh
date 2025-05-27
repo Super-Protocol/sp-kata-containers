@@ -42,7 +42,13 @@ run_postbuild() {
 
     set -x
     cp "${script_dir}/cert/superprotocol-ca.crt" "${rootfs_dir}/usr/local/share/ca-certificates/superprotocol-ca.crt"
-    cp "${script_dir}/cert/ca-initializer-linux" "${rootfs_dir}/usr/local/bin/"
+    cp "${script_dir}/cert/registry.superprotocol.local.ca.crt" "${rootfs_dir}/usr/local/share/ca-certificates/registry.superprotocol.local.ca.crt"
+
+    mkdir -p "${rootfs_dir}/etc/super/certs"
+    cp "${script_dir}/cert/registry.superprotocol.local.ca.crt" "${rootfs_dir}/etc/super/certs/registry.superprotocol.local.ca.crt"
+    cp "${script_dir}/cert/registry.superprotocol.local.key" "${rootfs_dir}/etc/super/certs/registry.superprotocol.local.key"
+    cp "${script_dir}/cert/registry.superprotocol.local.crt" "${rootfs_dir}/etc/super/certs/registry.superprotocol.local.crt"
+
     cp "${script_dir}/cert/superprotocol-certs.sh" "${rootfs_dir}/usr/local/bin/"
     cp "${script_dir}/cert/superprotocol-certs.service" "${rootfs_dir}/etc/systemd/system"
     ln -s /etc/systemd/system/superprotocol-certs.service "$rootfs_dir/etc/systemd/system/multi-user.target.wants/superprotocol-certs.service"

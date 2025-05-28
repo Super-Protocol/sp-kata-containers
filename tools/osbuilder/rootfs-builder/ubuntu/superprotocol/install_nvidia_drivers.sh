@@ -15,6 +15,7 @@ cd /opt/deb
 
 if ! dpkg -i *.deb; then
     echo "Error when install nvidia drivers 2"
+    dpkg -l
     cat /var/lib/dkms/nvidia/550.163.01/build/make.log || echo "make.log not found"
     exit 1
 fi

@@ -12,4 +12,9 @@ if ! DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends nvidi
     exit 1
 fi
 cd /opt/deb
-dpkg -i *.deb
+
+if ! dpkg -i *.deb; then
+    echo "Error when install nvidia drivers 2"
+    cat /var/lib/dkms/nvidia/550.163.01/build/make.log || echo "make.log not found"
+    exit 1
+fi

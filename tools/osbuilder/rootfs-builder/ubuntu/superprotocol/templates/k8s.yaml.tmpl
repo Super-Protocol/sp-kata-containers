@@ -838,7 +838,7 @@ spec:
 
       - name: get-secrets-for-tdx
         container:
-          image: registry.superprotocol.local:5000/super-protocol/tee-pki-curl:v1.4.9
+          image: registry.superprotocol.local:5000/super-protocol/tee-pki-curl:v1.5.0
           command: [sh, -c]
           args:
             - |
@@ -867,7 +867,7 @@ spec:
 
       - name: get-secrets-for-sev-snp
         container:
-          image: registry.superprotocol.local:5000/super-protocol/tee-pki-curl:v1.4.9
+          image: registry.superprotocol.local:5000/super-protocol/tee-pki-curl:v1.5.0
           command: [sh, -c]
           args:
             - |
@@ -893,7 +893,7 @@ spec:
 
       - name: get-secrets-for-untrusted
         container:
-          image: registry.superprotocol.local:5000/super-protocol/tee-pki-curl:v1.4.9
+          image: registry.superprotocol.local:5000/super-protocol/tee-pki-curl:v1.5.0
           command: [sh, -c]
           args:
             - |

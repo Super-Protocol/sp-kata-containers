@@ -302,7 +302,7 @@ spec:
 EOF
 
 hauler store sync --store rke2-store --platform linux/amd64 --files rke2-airgap.yaml
-hauler store add --store rke2-store image ghcr.io/super-protocol/tee-pki-curl:v1.5.0 --platform linux/amd64
+hauler store add --store rke2-store image ghcr.io/super-protocol/tee-pki-curl:v1.5.1 --platform linux/amd64
 
 hauler store save --store rke2-store --filename rke2-airgap.tar.zst
 # @TODO add argo-cd, argo-workflows, cert-manager, gpu-operator, longhorn charts

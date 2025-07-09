@@ -6,7 +6,7 @@ cd /opt/deb/nvidia
 dpkg -i *.deb
 apt update
 #apt list --all-versions 2>/dev/null | grep nvidia | grep -E "(570|fabricmanager)"
-DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \
+DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends --allow-downgrades \
     nvidia-driver-570-open=570.148.08-0ubuntu1 \
     libnvidia-gl-570=570.148.08-0ubuntu1 \
     nvidia-dkms-570-open=570.148.08-0ubuntu1 \
@@ -22,7 +22,9 @@ DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \
     libnvidia-cfg1-570=570.148.08-0ubuntu1 \
     libnvidia-fbc1-570=570.148.08-0ubuntu1 \
     nvidia-fabricmanager-570=570.148.08-1 \
-    libnvidia-nscq-570=570.148.08-1
+    libnvidia-nscq-570=570.148.08-1 \
+    nvidia-persistenced=570.148.08-0ubuntu1 \
+    nvidia-firmware-570=570.148.08-0ubuntu1
 systemctl enable nvidia-fabricmanager
 systemctl enable nvidia-persistenced
 cd /opt/deb

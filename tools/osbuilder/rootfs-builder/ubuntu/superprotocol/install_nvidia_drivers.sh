@@ -21,11 +21,9 @@ DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends --allow-do
     xserver-xorg-video-nvidia-570=570.148.08-0ubuntu1 \
     libnvidia-cfg1-570=570.148.08-0ubuntu1 \
     libnvidia-fbc1-570=570.148.08-0ubuntu1 \
-    nvidia-fabricmanager-570=570.148.08-1 \
     libnvidia-nscq-570=570.148.08-1 \
     nvidia-persistenced=570.148.08-0ubuntu1 \
     nvidia-firmware-570=570.148.08-0ubuntu1
-systemctl enable nvidia-fabricmanager
 systemctl enable nvidia-persistenced
 cd /opt/deb
 dpkg -i *.deb

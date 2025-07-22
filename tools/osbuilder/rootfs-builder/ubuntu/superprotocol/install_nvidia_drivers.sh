@@ -3,6 +3,8 @@
 apt update
 
 echo "Installing MLNX_OFED..."
+apt install -y wget curl build-essential dkms
+
 cd /tmp
 wget https://www.mellanox.com/downloads/ofed/MLNX_OFED-24.10-3.2.5.0/MLNX_OFED_LINUX-24.10-3.2.5.0-ubuntu24.04-x86_64.tgz
 tar -xzf MLNX_OFED_LINUX-24.10-3.2.5.0-ubuntu24.04-x86_64.tgz

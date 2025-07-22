@@ -840,14 +840,14 @@ spec:
 
       - name: get-secrets-for-tdx
         container:
-          image: registry.superprotocol.local:5000/super-protocol/tee-pki-curl:v1.7.2
+          image: registry.superprotocol.local:5000/super-protocol/tee-pki-curl:v1.7.4
           command: [sh, -c]
           args:
             - |
               set -e
               SD=/opt/super/deploy
               rm -rf $SD && mkdir -p $SD
-              node dist/app.js https://ca-subroot.certs.superprotocol.com/api/v1/pki --config /pki-config/default.conf > $SD/secrets_repo.tar.gz
+              node dist/app.js https://secrets.certs.superprotocol.com/api/v1/pki --config /pki-config/default.conf > $SD/secrets_repo.tar.gz
               mkdir -p $SD/secrets_repo && cd $SD/secrets_repo
               tar -xzf $SD/secrets_repo.tar.gz
               inner_dir=$(find ./ -mindepth 1 -maxdepth 1 -type d)
@@ -869,14 +869,14 @@ spec:
 
       - name: get-secrets-for-sev-snp
         container:
-          image: registry.superprotocol.local:5000/super-protocol/tee-pki-curl:v1.7.2
+          image: registry.superprotocol.local:5000/super-protocol/tee-pki-curl:v1.7.4
           command: [sh, -c]
           args:
             - |
               set -e
               SD=/opt/super/deploy
               rm -rf $SD && mkdir -p $SD
-              node dist/app.js https://ca-subroot.certs.superprotocol.com/api/v1/pki --config /pki-config/default.conf > $SD/secrets_repo.tar.gz
+              node dist/app.js https://secrets.certs.superprotocol.com/api/v1/pki --config /pki-config/default.conf > $SD/secrets_repo.tar.gz
               mkdir -p $SD/secrets_repo && cd $SD/secrets_repo
               tar -xzf $SD/secrets_repo.tar.gz
               inner_dir=$(find ./ -mindepth 1 -maxdepth 1 -type d)
@@ -895,7 +895,7 @@ spec:
 
       - name: get-secrets-for-untrusted
         container:
-          image: registry.superprotocol.local:5000/super-protocol/tee-pki-curl:v1.7.2
+          image: registry.superprotocol.local:5000/super-protocol/tee-pki-curl:v1.7.4
           command: [sh, -c]
           args:
             - |

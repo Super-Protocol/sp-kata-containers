@@ -9,7 +9,7 @@ dpkg -i *.deb
 
 echo "Installing MLNX_OFED..."
 apt update
-apt install -y build-essential wget dkms autotools-dev apt-utils
+apt install -y build-essential wget dkms autotools-dev apt-utils gcc dh-autoreconf debhelper dh-dkms quilt chrpath pkg-config bzip2 autoconf automake make
 
 cd /tmp
 wget -nv https://www.mellanox.com/downloads/ofed/MLNX_OFED-24.10-3.2.5.0/MLNX_OFED_LINUX-24.10-3.2.5.0-ubuntu24.04-x86_64.tgz

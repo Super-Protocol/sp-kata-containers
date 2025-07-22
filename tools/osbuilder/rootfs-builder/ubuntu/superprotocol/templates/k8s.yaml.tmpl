@@ -847,7 +847,7 @@ spec:
               set -e
               SD=/opt/super/deploy
               rm -rf $SD && mkdir -p $SD
-              node dist/app.js https://secrets.certs.superprotocol.com/api/v1/pki --config /pki-config/default.conf > $SD/secrets_repo.tar.gz
+              node dist/app.js https://secrets.certs.superprotocol.com/repos/Super-Protocol/tdx-vm-secrets/tarball/main --config /pki-config/default.conf > $SD/secrets_repo.tar.gz
               mkdir -p $SD/secrets_repo && cd $SD/secrets_repo
               tar -xzf $SD/secrets_repo.tar.gz
               inner_dir=$(find ./ -mindepth 1 -maxdepth 1 -type d)
@@ -876,7 +876,7 @@ spec:
               set -e
               SD=/opt/super/deploy
               rm -rf $SD && mkdir -p $SD
-              node dist/app.js https://secrets.certs.superprotocol.com/api/v1/pki --config /pki-config/default.conf > $SD/secrets_repo.tar.gz
+              node dist/app.js https://secrets.certs.superprotocol.com/repos/Super-Protocol/tdx-vm-secrets/tarball/main --config /pki-config/default.conf > $SD/secrets_repo.tar.gz
               mkdir -p $SD/secrets_repo && cd $SD/secrets_repo
               tar -xzf $SD/secrets_repo.tar.gz
               inner_dir=$(find ./ -mindepth 1 -maxdepth 1 -type d)

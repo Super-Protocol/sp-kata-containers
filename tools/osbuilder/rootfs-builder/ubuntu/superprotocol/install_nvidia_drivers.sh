@@ -2,21 +2,19 @@
 
 apt update
 
-cd /opt/deb/nvidia
-dpkg -i *.deb
-echo "Installing UCX..."
-wget https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK
-apt-key add DEB-GPG-KEY-NVIDIA-HPC-SDK
-echo "deb https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /" > /etc/apt/sources.list.d/nvhpc.list
+echo "Installing MLNX_OFED..."
+cd /tmp
+wget https://www.mellanox.com/downloads/ofed/MLNX_OFED-24.10-3.2.5.0/MLNX_OFED_LINUX-24.10-3.2.5.0-ubuntu24.04-x86_64.tgz
+tar -xzf MLNX_OFED_LINUX-24.10-3.2.5.0-ubuntu24.04-x86_64.tgz
+cd MLNX_OFED_LINUX-24.10-3.2.5.0-ubuntu24.04-x86_64
+./mlnxofedinstall --hpc --user-space-only --without-fw-update --force -v
+
 apt update
-DEBIAN_FRONTEND=noninteractive apt install -y ucx libucx-dev ucx-tools
 echo "Installing NVIDIA drivers and components..."
 DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \
     nvidia-open-570 \
     nvlink5-570 \
-    nvidia-fabricmanager-570 \
-    libibumad3 \
-    infiniband-diags
+    nvidia-fabricmanager-570
 systemctl enable nvidia-fabricmanager
 systemctl enable nvidia-persistenced
 cd /opt/deb

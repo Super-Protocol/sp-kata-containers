@@ -16,9 +16,8 @@ wget -nv https://www.mellanox.com/downloads/ofed/MLNX_OFED-24.10-3.2.5.0/MLNX_OF
 tar -xzf MLNX_OFED_LINUX-24.10-3.2.5.0-ubuntu24.04-x86_64.tgz
 cd MLNX_OFED_LINUX-24.10-3.2.5.0-ubuntu24.04-x86_64
 
-./mlnxofedinstall --guest --without-fw-update --force --dkms \
-  --add-kernel-support -k 6.12.13-nvidia-gpu-confidential \
-  --with-nvmf --fwctl -vvv
+./mlnxofedinstall  -vvv --with-nvmf --force --without-fw-update \
+  --add-kernel-support -k 6.12.13-nvidia-gpu-confidential
 
 cat $(find /tmp -name "mlnx_ofed_iso.*.log" -type f -printf '%T@ %p\n' | sort -n | tail -1 | cut -d' ' -f2-)
 

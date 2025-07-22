@@ -4,9 +4,12 @@ apt update
 
 cd /opt/deb/nvidia
 dpkg -i *.deb
-apt update
 echo "Installing UCX..."
-DEBIAN_FRONTEND=noninteractive apt install -y libucx-dev ucx-tools
+wget https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK
+apt-key add DEB-GPG-KEY-NVIDIA-HPC-SDK
+echo "deb https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /" > /etc/apt/sources.list.d/nvhpc.list
+apt update
+DEBIAN_FRONTEND=noninteractive apt install -y ucx libucx-dev ucx-tools
 echo "Installing NVIDIA drivers and components..."
 DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \
     nvidia-open-570 \

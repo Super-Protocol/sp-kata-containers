@@ -4,7 +4,7 @@
 echo "Installing MLNX_OFED..."
 apt update
 apt install -y wget curl build-essential dkms
-sudo apt install -y autotools-dev libnl-route-3-200 flex libusb-1.0-0 tk libpci3 bison libltdl-dev autoconf libnl-3-dev libnuma1 ethtool graphviz libnl-route-3-dev debhelper pkg-config libfuse2t64 pciutils swig lsof chrpath m4 libgfortran5 tcl automake linux-headers-6.8.0-55-generic quilt gfortran
+sudo apt install -y linux-headers-$(uname -r) linux-headers-generic
 
 cd /tmp
 wget -nv https://www.mellanox.com/downloads/ofed/MLNX_OFED-24.10-3.2.5.0/MLNX_OFED_LINUX-24.10-3.2.5.0-ubuntu24.04-x86_64.tgz

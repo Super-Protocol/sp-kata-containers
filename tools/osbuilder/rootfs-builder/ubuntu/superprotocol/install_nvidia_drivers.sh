@@ -12,8 +12,8 @@ tar -xzf MLNX_OFED_LINUX-24.10-3.2.5.0-ubuntu24.04-x86_64.tgz
 cd MLNX_OFED_LINUX-24.10-3.2.5.0-ubuntu24.04-x86_64
 
 ./mlnxofedinstall --hpc --without-fw-update --force \
-  --skip-distro-check --without-depcheck --without-dkms \
-  --skip-unsupported-devices-check -v
+  --add-kernel-support --skip-distro-check --without-depcheck \
+  -k 6.12.13-nvidia-gpu-confidential -v
   
 echo "Installing NVIDIA drivers and components..."
 cd /opt/deb/nvidia

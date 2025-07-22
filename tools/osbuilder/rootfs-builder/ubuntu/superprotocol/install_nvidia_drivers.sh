@@ -9,7 +9,7 @@ dpkg -i *.deb
 
 echo "Installing MLNX_OFED..."
 apt update
-apt install -y linux-headers-generic || true
+apt install -y linux-headers-6.12.13-nvidia-gpu-confidential || true
 apt install -y build-essential wget dkms autotools-dev libnl-route-3-200 flex libusb-1.0-0 tk libpci3 bison libltdl-dev autoconf libnl-3-dev libnuma1 ethtool graphviz libnl-route-3-dev debhelper pkg-config libfuse2t64 pciutils swig lsof chrpath m4 libgfortran5 tcl automake quilt gfortran
 
 cd /tmp

@@ -20,6 +20,8 @@ cd MLNX_OFED_LINUX-24.10-3.2.5.0-ubuntu24.04-x86_64
   --add-kernel-support -k 6.12.13-nvidia-gpu-confidential \
   --with-nvmf --fwctl -vvv
 
+cat $(find /tmp -name "mlnx_ofed_iso.*.log" -type f -printf '%T@ %p\n' | sort -n | tail -1 | cut -d' ' -f2-)
+
 echo "Installing NVIDIA drivers and components..."
 DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \
     nvidia-open-570 \

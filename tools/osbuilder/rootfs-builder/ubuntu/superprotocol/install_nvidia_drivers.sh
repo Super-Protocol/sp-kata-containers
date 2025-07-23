@@ -1,7 +1,7 @@
 #!/bin/bash
 
 apt update
-apt install -y wget apt-utils
+apt install -y wget apt-utils dkms
 
 cd /opt/deb
 dpkg -i *.deb
@@ -12,7 +12,7 @@ apt update
 wget -nv https://www.mellanox.com/downloads/MFT/mft-4.32.0-120-x86_64-deb.tgz
 tar -xzf mft-4.32.0-120-x86_64-deb.tgz
 cd mft-4.32.0-120-x86_64-deb
-./install.sh
+./install.sh --without-kernel
 
 wget -nv https://www.mellanox.com/downloads/DOCA/DOCA_v2.10.0/host/doca-host_2.10.0-093000-25.01-ubuntu2404_amd64.deb
 dpkg -i doca-host_2.10.0-093000-25.01-ubuntu2404_amd64.deb

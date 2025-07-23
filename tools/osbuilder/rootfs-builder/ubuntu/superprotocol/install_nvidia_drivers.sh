@@ -7,7 +7,7 @@ cd /opt/deb/nvidia
 dpkg -i *.deb
 
 apt update
-apt install -y wget dkms
+apt install -y wget dkms linux-headers-$(uname -r) linux-headers-generic
 
 echo "Installing MFT 4.32.0-120 manually..."
 cd /tmp

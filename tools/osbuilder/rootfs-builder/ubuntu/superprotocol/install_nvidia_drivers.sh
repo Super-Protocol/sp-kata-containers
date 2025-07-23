@@ -52,15 +52,17 @@ show_mlnx_logs() {
 
 echo "Installing MLNX_OFED..."
 apt update
-apt install -y build-essential wget dkms autotools-dev apt-utils gcc dh-autoreconf debhelper dh-dkms quilt chrpath pkg-config bzip2 autoconf automake make
+apt install -y build-essential wget dkms autotools-dev apt-utils gcc dh-autoreconf debhelper dh-dkms quilt chrpath pkg-config bzip2 autoconf automake make gcc bzip2
+apt install -y autotools-dev libnl-route-3-200 flex libusb-1.0-0 tk libpci3 bison libltdl-dev libnl-3-dev libnuma1 ethtool graphviz libnl-route-3-dev libfuse2t64 pciutils swig lsof chrpath m4 libgfortran5 tcl gfortran
 
 cd /tmp
 wget -nv https://www.mellanox.com/downloads/ofed/MLNX_OFED-24.10-3.2.5.0/MLNX_OFED_LINUX-24.10-3.2.5.0-ubuntu24.04-x86_64.tgz
 tar -xzf MLNX_OFED_LINUX-24.10-3.2.5.0-ubuntu24.04-x86_64.tgz
 cd MLNX_OFED_LINUX-24.10-3.2.5.0-ubuntu24.04-x86_64
 
-./mlnxofedinstall  -vvv --with-nvmf --force --without-fw-update \
-  --add-kernel-support -k 6.12.13-nvidia-gpu-confidential
+./mlnxofedinstall --guest --without-fw-update --force \
+  --add-kernel-support -k 6.12.13-nvidia-gpu-confidential \
+  --without-depcheck --skip-distro-check -vvv
 
 if [[ $? -ne 0 ]]; then
     echo "MLNX_OFED installation failed, showing logs..."

@@ -6,14 +6,11 @@ dpkg -i *.deb
 cd /opt/deb/nvidia
 dpkg -i *.deb
 
+apt update
+apt install -y wget dkms
+
 echo "Installing MFT 4.32.0-120 manually..."
 cd /tmp
-
-echo "Removing old MFT version..."
-apt remove mft -y
-apt autoremove -y
-apt install -y wget dkms linux-headers linux-headers-generic
-
 echo "Downloading MFT 4.32.0-120..."
 wget --no-verbose https://www.mellanox.com/downloads/MFT/mft-4.32.0-120-x86_64-deb.tgz
 

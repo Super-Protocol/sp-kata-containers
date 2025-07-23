@@ -20,13 +20,15 @@ cd mft-4.32.0-120-x86_64-deb
 
 echo "Installing MFT..."
 ./install.sh --without-kernel
+apt update
+apt install -f
 
 echo "Installing DOCA_OFED..."
 cd /tmp
 wget --no-verbose https://www.mellanox.com/downloads/DOCA/DOCA_v3.0.0/host/doca-host_3.0.0-058000-25.04-ubuntu2404_amd64.deb
 dpkg -i doca-host_3.0.0-058000-25.04-ubuntu2404_amd64.deb
-apt-get update
-apt-get -y install doca-ofed
+apt update
+apt -y install doca-ofed
 
 echo "Installing NVIDIA drivers and components..."
 DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \

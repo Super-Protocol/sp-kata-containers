@@ -11,10 +11,8 @@ dpkg -i *.deb
 apt update
 cd /tmp
 
-wget -nv https://www.mellanox.com/downloads/DOCA/DOCA_v2.10.0/host/doca-host_2.10.0-093000-25.01-ubuntu2404_amd64.deb
-dpkg -i doca-host_2.10.0-093000-25.01-ubuntu2404_amd64.deb
-apt-get update
-apt-get -y install doca-ofed
+apt install -y doca-extra
+/opt/mellanox/doca/tools/doca-kernel-support
 
 echo "Installing NVIDIA drivers and components..."
 DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \

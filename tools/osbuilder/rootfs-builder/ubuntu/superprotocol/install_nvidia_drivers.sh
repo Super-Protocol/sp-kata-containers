@@ -8,6 +8,7 @@ dpkg -i *.deb
 cd /opt/deb/nvidia
 dpkg -i *.deb
 
+apt update
 wget -nv https://www.mellanox.com/downloads/MFT/mft-4.32.0-120-x86_64-deb.tgz
 tar -xzf mft-4.32.0-120-x86_64-deb.tgz
 cd mft-4.32.0-120-x86_64-deb

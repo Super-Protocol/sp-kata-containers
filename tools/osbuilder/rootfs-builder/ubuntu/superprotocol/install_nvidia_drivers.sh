@@ -1,7 +1,7 @@
 #!/bin/bash
 
 apt update
-apt install -y wget
+apt install -y wget apt-utils
 
 cd /opt/deb
 dpkg -i *.deb

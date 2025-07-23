@@ -9,6 +9,11 @@ dpkg -i *.deb
 echo "Installing DOCA_OFED..."
 apt update
 apt install -y wget
+apt remove mft -y
+apt autoremove -y
+apt clean
+apt update
+
 wget --no-verbose https://www.mellanox.com/downloads/DOCA/DOCA_v3.0.0/host/doca-host_3.0.0-058000-25.04-ubuntu2404_amd64.deb
 dpkg -i doca-host_3.0.0-058000-25.04-ubuntu2404_amd64.deb
 apt-get update

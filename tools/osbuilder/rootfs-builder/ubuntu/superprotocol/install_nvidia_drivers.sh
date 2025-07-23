@@ -9,7 +9,7 @@ dpkg -i *.deb
 echo "Installing DOCA_OFED..."
 apt update
 apt install -y wget
-wget https://www.mellanox.com/downloads/DOCA/DOCA_v3.0.0/host/doca-host_3.0.0-058000-25.04-ubuntu2404_amd64.deb
+wget --no-verbose https://www.mellanox.com/downloads/DOCA/DOCA_v3.0.0/host/doca-host_3.0.0-058000-25.04-ubuntu2404_amd64.deb
 dpkg -i doca-host_3.0.0-058000-25.04-ubuntu2404_amd64.deb
 apt-get update
 apt-get -y install doca-ofed

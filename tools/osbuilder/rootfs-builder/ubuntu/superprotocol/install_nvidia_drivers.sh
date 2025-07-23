@@ -12,7 +12,7 @@ cd /tmp
 echo "Removing old MFT version..."
 apt remove mft -y
 apt autoremove -y
-apt install -y wget
+apt install -y wget dkms linux-headers linux-headers-generic
 
 echo "Downloading MFT 4.32.0-120..."
 wget --no-verbose https://www.mellanox.com/downloads/MFT/mft-4.32.0-120-x86_64-deb.tgz

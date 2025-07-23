@@ -10,10 +10,6 @@ dpkg -i *.deb
 
 apt update
 cd /tmp
-wget -nv https://www.mellanox.com/downloads/MFT/mft-4.31.0-149-x86_64-deb.tgz
-tar -xzf mft-4.31.0-149-x86_64-deb.tgz
-cd mft-4.31.0-149-x86_64-deb
-./install.sh --without-kernel
 
 wget -nv https://www.mellanox.com/downloads/DOCA/DOCA_v2.10.0/host/doca-host_2.10.0-093000-25.01-ubuntu2404_amd64.deb
 dpkg -i doca-host_2.10.0-093000-25.01-ubuntu2404_amd64.deb

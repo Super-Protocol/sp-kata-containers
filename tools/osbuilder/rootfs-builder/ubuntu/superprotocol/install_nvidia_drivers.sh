@@ -8,15 +8,10 @@ dpkg -i *.deb
 cd /opt/deb/nvidia
 dpkg -i *.deb
 
-cd /tmp
-wget -nv https://www.mellanox.com/downloads/ofed/MLNX_OFED-24.10-3.2.5.0/MLNX_OFED_LINUX-24.10-3.2.5.0-ubuntu24.04-x86_64.tgz
-tar -xzf MLNX_OFED_LINUX-24.10-3.2.5.0-ubuntu24.04-x86_64.tgz
-cd MLNX_OFED_LINUX-24.10-3.2.5.0-ubuntu24.04-x86_64
-
-./mlnxofedinstall --guest --without-dkms --add-kernel-support \
-  --kernel 6.12.13-nvidia-gpu-confidential \
-  --without-fw-update --force --without-depcheck \
-  --skip-distro-check -vvv
+wget https://www.mellanox.com/downloads/DOCA/DOCA_v2.10.0/host/doca-host_2.10.0-093000-25.01-ubuntu2404_amd64.deb
+sudo dpkg -i doca-host_2.10.0-093000-25.01-ubuntu2404_amd64.deb
+sudo apt-get update
+sudo apt-get -y install doca-ofed
 
 echo "Installing NVIDIA drivers and components..."
 DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \

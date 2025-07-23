@@ -9,9 +9,9 @@ cd /opt/deb/nvidia
 dpkg -i *.deb
 
 wget https://www.mellanox.com/downloads/DOCA/DOCA_v2.10.0/host/doca-host_2.10.0-093000-25.01-ubuntu2404_amd64.deb
-sudo dpkg -i doca-host_2.10.0-093000-25.01-ubuntu2404_amd64.deb
-sudo apt-get update
-sudo apt-get -y install doca-ofed
+dpkg -i doca-host_2.10.0-093000-25.01-ubuntu2404_amd64.deb
+apt-get update
+apt-get -y install doca-ofed
 
 echo "Installing NVIDIA drivers and components..."
 DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \

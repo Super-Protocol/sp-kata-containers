@@ -7,7 +7,7 @@ cd /opt/deb/nvidia
 dpkg -i *.deb
 
 apt update
-apt install -y wget dkms linux-headers-$(uname -r) linux-headers-generic
+apt install -y wget dkms
 
 echo "Installing MFT 4.32.0-120 manually..."
 cd /tmp
@@ -19,7 +19,7 @@ tar -xzf mft-4.32.0-120-x86_64-deb.tgz
 cd mft-4.32.0-120-x86_64-deb
 
 echo "Installing MFT..."
-./install.sh
+./install.sh --without-kernel
 
 echo "Installing DOCA_OFED..."
 cd /tmp

@@ -7,28 +7,7 @@ cd /opt/deb/nvidia
 dpkg -i *.deb
 
 apt update
-apt install -y wget dkms
-
-echo "Installing MFT 4.32.0-120 manually..."
-cd /tmp
-echo "Downloading MFT 4.32.0-120..."
-wget --no-verbose https://www.mellanox.com/downloads/MFT/mft-4.32.0-120-x86_64-deb.tgz
-
-echo "Extracting MFT package..."
-tar -xzf mft-4.32.0-120-x86_64-deb.tgz
-cd mft-4.32.0-120-x86_64-deb
-
-echo "Installing MFT..."
-./install.sh --without-kernel
-apt update
-apt install -f
-
-echo "Installing DOCA_OFED..."
-cd /tmp
-wget --no-verbose https://www.mellanox.com/downloads/DOCA/DOCA_v3.0.0/host/doca-host_3.0.0-058000-25.04-ubuntu2404_amd64.deb
-dpkg -i doca-host_3.0.0-058000-25.04-ubuntu2404_amd64.deb
-apt update
-apt -y install doca-ofed
+apt install -y rdma-core ibverbs-utils infiniband-diags libibverbs1 libibverbs-dev librdmacm1 librdmacm-dev
 
 echo "Installing NVIDIA drivers and components..."
 DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \

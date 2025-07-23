@@ -8,16 +8,15 @@ dpkg -i *.deb
 cd /opt/deb/nvidia
 dpkg -i *.deb
 
-wget --no-verbose https://www.mellanox.com/downloads/DOCA/DOCA_v3.0.0/host/doca-host_3.0.0-058000-25.04-ubuntu2404_amd64.deb
-dpkg -i doca-host_3.0.0-058000-25.04-ubuntu2404_amd64.deb
+cd /tmp
+wget -nv https://www.mellanox.com/downloads/ofed/MLNX_OFED-24.10-3.2.5.0/MLNX_OFED_LINUX-24.10-3.2.5.0-ubuntu24.04-x86_64.tgz
+tar -xzf MLNX_OFED_LINUX-24.10-3.2.5.0-ubuntu24.04-x86_64.tgz
+cd MLNX_OFED_LINUX-24.10-3.2.5.0-ubuntu24.04-x86_64
 
-wget https://www.mellanox.com/downloads/MFT/mft-4.32.0-120-x86_64-deb.tgz
-tar -xzf mft-4.32.0-120-x86_64-deb.tgz
-cd mft-4.32.0-120-x86_64-deb
-./install.sh
-
-apt update
-apt -y install doca-all
+./mlnxofedinstall --guest --without-dkms --add-kernel-support \
+  --kernel 6.12.13-nvidia-gpu-confidential \
+  --without-fw-update --force --without-depcheck \
+  --skip-distro-check -vvv
 
 echo "Installing NVIDIA drivers and components..."
 DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \

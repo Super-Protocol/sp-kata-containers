@@ -11,6 +11,3 @@ ExecStart=/usr/bin/nvidia-smi conf-compute -srs 1
 ExecStopPost=/bin/rm -rf /var/run/nvidia-persistenced
 TimeoutStartSec=1000
 TimeoutStopSec=1000
-
-[Install]
-WantedBy=multi-user.target

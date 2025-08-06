@@ -24,6 +24,16 @@ run_postbuild() {
 
     cp "${script_dir}/install_tdx_packages.sh" "${rootfs_dir}"
     cp "${script_dir}/install_nvidia_drivers.sh" "${rootfs_dir}"
+    cp "${script_dir}/install_lxc_deps.sh" "${rootfs_dir}"
+
+    # copy pki-authority service files
+    cp "${script_dir}/pki-authority.service" "${rootfs_dir}/etc/systemd/system"
+    ln -s /etc/systemd/system/pki-authority.service "$rootfs_dir/etc/systemd/system/multi-user.target.wants/pki-authority.service"
+    cp "${script_dir}/create-and-configure-pki.sh" "${rootfs_dir}/usr/local/bin"
+    chmod +x "${rootfs_dir}/usr/local/bin/create-and-configure-pki.sh"
+    mkdir -p "${rootfs_dir}/root/containers"
+    # TODO: pull from registry
+    cp "${script_dir}/pki-authority.tar" "${rootfs_dir}/root/containers"
 
     mount -t sysfs -o ro none "${rootfs_dir}/sys"
     mount -t proc -o ro none "${rootfs_dir}/proc"
@@ -33,15 +43,18 @@ run_postbuild() {
 
     chroot "${rootfs_dir}" /bin/bash "/install_tdx_packages.sh"
     chroot "${rootfs_dir}" /bin/bash "/install_nvidia_drivers.sh"
+    chroot "${rootfs_dir}" /bin/bash "/install_lxc_deps.sh"
     rm -f "${rootfs_dir}/install_tdx_packages.sh"
     rm -f "${rootfs_dir}/install_nvidia_drivers.sh"
+    rm -f "${rootfs_dir}/install_lxc_deps.sh"
+    
     cp "${script_dir}/nvidia-persistenced.service" "${rootfs_dir}/usr/lib/systemd/system/"
 
     sed -i '1 s|^.*$|-:root:ALL|' "${rootfs_dir}/etc/security/access.conf"
     sed -i '1 s|^.*$|account required pam_access.so|' "${rootfs_dir}/etc/pam.d/login"
 
     set -x
-    cp "${script_dir}/cert/superprotocol-ca.crt" "${rootfs_dir}/usr/local/share/ca-certificates/superprotocol-ca.crt"
+    #cp "${script_dir}/cert/superprotocol-ca.crt" "${rootfs_dir}/usr/local/share/ca-certificates/superprotocol-ca.crt"
     cp "${script_dir}/cert/registry.superprotocol.local.ca.crt" "${rootfs_dir}/usr/local/share/ca-certificates/registry.superprotocol.local.ca.crt"
 
     mkdir -p "${rootfs_dir}/etc/super/certs"

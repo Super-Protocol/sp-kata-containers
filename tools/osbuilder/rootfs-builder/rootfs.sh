@@ -520,6 +520,12 @@ build_rootfs_distro()
 
 		engine_run_args+=" $(docker_extra_args $distro)"
 
+		# Check if PKI_CONTAINER_PATH exists
+		if [ ! -f "${PKI_CONTAINER_PATH}" ]; then
+		    echo "Error: PKI_CONTAINER_PATH ('${PKI_CONTAINER_PATH}') not found."
+		    exit 1
+		fi
+
 		# Relabel volumes so SELinux allows access (see docker-run(1))
 		if command -v selinuxenabled > /dev/null && selinuxenabled ; then
 			SRC_VOL=("${GOPATH_LOCAL}")
@@ -535,7 +541,7 @@ build_rootfs_distro()
 
 		before_starting_container
 		trap after_stopping_container EXIT
-
+		
 		#Make sure we use a compatible runtime to build rootfs
 		# In case Clear Containers Runtime is installed we dont want to hit issue:
 		#https://github.com/clearcontainers/runtime/issues/828
@@ -570,6 +576,7 @@ build_rootfs_distro()
 			-v "${ROOTFS_DIR}":"/rootfs" \
 			-v "${script_dir}/../scripts":"/scripts" \
 			-v "${kernel_mod_dir}":"${kernel_mod_dir}" \
+			-v "${PKI_CONTAINER_PATH}":"/containers/pki-authority.tar" \
 			$engine_run_args \
 			${image_name} \
 			bash /kata-containers/tools/osbuilder/rootfs-builder/rootfs.sh "${distro}"

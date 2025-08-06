@@ -24,16 +24,16 @@ run_postbuild() {
 
     cp "${script_dir}/install_tdx_packages.sh" "${rootfs_dir}"
     cp "${script_dir}/install_nvidia_drivers.sh" "${rootfs_dir}"
-    cp "${script_dir}/install_lxc_deps.sh" "${rootfs_dir}"
+    cp "${script_dir}/pki-service/install_lxc_deps.sh" "${rootfs_dir}"
 
     # copy pki-authority service files
-    cp "${script_dir}/pki-authority.service" "${rootfs_dir}/etc/systemd/system"
+    cp "${script_dir}/pki-service/pki-authority.service" "${rootfs_dir}/etc/systemd/system"
     ln -s /etc/systemd/system/pki-authority.service "$rootfs_dir/etc/systemd/system/multi-user.target.wants/pki-authority.service"
-    cp "${script_dir}/create-and-configure-pki.sh" "${rootfs_dir}/usr/local/bin"
+    cp "${script_dir}/pki-service/create-and-configure-pki.sh" "${rootfs_dir}/usr/local/bin"
     chmod +x "${rootfs_dir}/usr/local/bin/create-and-configure-pki.sh"
     mkdir -p "${rootfs_dir}/root/containers"
-    # TODO: pull from registry
-    cp "${script_dir}/pki-authority.tar" "${rootfs_dir}/root/containers"
+    cp "/containers/pki-authority.tar" "${rootfs_dir}/root/containers/pki-authority.tar"
+    cp "${script_dir}/pki-service/lxc-template.yaml" "${rootfs_dir}/root/containers/lxc-template.yaml"
 
     mount -t sysfs -o ro none "${rootfs_dir}/sys"
     mount -t proc -o ro none "${rootfs_dir}/proc"
@@ -47,7 +47,7 @@ run_postbuild() {
     rm -f "${rootfs_dir}/install_tdx_packages.sh"
     rm -f "${rootfs_dir}/install_nvidia_drivers.sh"
     rm -f "${rootfs_dir}/install_lxc_deps.sh"
-    
+
     cp "${script_dir}/nvidia-persistenced.service" "${rootfs_dir}/usr/lib/systemd/system/"
 
     sed -i '1 s|^.*$|-:root:ALL|' "${rootfs_dir}/etc/security/access.conf"

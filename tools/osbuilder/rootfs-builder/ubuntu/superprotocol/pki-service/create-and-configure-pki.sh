@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 CONTAINER_NAME="pki-authority"
 
@@ -17,12 +18,14 @@ elif [[ -c "/dev/sev-guest" ]]; then
     CPU_TYPE="sev-snp";
 fi
 
+export CPU_TYPE="$CPU_TYPE"
+
 SRC_YAML="/root/containers/lxc-template.yaml"
 DST_YAML="/var/lib/lxc/pki-authority/rootfs/app/conf/lxc.yaml"
 
 if [ -f "$SRC_YAML" ]; then
-    if command -v yq >/dev/null 2>&1; then
-        yq e '.pki.ownChallenge.type = env(CPU_TYPE)' "$SRC_YAML" > "$DST_YAML"
+    if command -v yq-go >/dev/null 2>&1; then
+        yq-go e '.pki.ownChallenge.type = strenv(CPU_TYPE)' "$SRC_YAML" > "$DST_YAML"
         echo "Patched $DST_YAML with type: $CPU_TYPE using yq."
     else
         echo "Error: yq is not installed. Please install yq for YAML editing."
@@ -47,11 +50,14 @@ else
 fi
 
 if [ "$CPU_TYPE" = "sev-snp" ]; then
-    DEV_ID=$(stat -c '%t:%T' /dev/sev-guest)
+    DEV_ID=$(stat -c '%t:%T' /dev/sev-guest | awk -F: '{printf "%d:%d\n", "0x"$1, "0x"$2}')
     echo "lxc.cgroup2.devices.allow = c $DEV_ID rwm" >> "$CONFIG_FILE"
     echo "lxc.mount.entry = /dev/sev-guest dev/sev-guest none bind,optional,create=file" >> "$CONFIG_FILE"
 elif [ "$CPU_TYPE" = "tdx" ]; then
-    DEV_ID=$(stat -c '%t:%T' /dev/tdx_guest)
+    DEV_ID=$(stat -c '%t:%T' /dev/tdx_guest | awk -F: '{printf "%d:%d\n", "0x"$1, "0x"$2}')
     echo "lxc.cgroup2.devices.allow = c $DEV_ID rwm" >> "$CONFIG_FILE"
     echo "lxc.mount.entry = /dev/tdx_guest dev/tdx_guest none bind,optional,create=file" >> "$CONFIG_FILE"
+    if [ -f "/etc/tdx-attest.conf" ]; then
+        echo "lxc.mount.entry = /etc/tdx-attest.conf etc/tdx-attest.conf none bind,ro,create=file" >> "$CONFIG_FILE"
+    fi
 fi

@@ -34,6 +34,8 @@ run_postbuild() {
     mkdir -p "${rootfs_dir}/root/containers"
     cp "/containers/pki-authority.tar" "${rootfs_dir}/root/containers/pki-authority.tar"
     cp "${script_dir}/pki-service/lxc-template.yaml" "${rootfs_dir}/root/containers/lxc-template.yaml"
+    cp "${script_dir}/pki-service/dnsmasq.conf" "${rootfs_dir}/etc/lxc/dnsmasq.conf"
+    cp -f "${script_dir}/pki-service/lxc-net" "${rootfs_dir}/etc/default/lxc-net"
 
     mount -t sysfs -o ro none "${rootfs_dir}/sys"
     mount -t proc -o ro none "${rootfs_dir}/proc"

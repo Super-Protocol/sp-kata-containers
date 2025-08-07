@@ -49,6 +49,9 @@ else
     fi
 fi
 
+# hardware address for the container
+echo "lxc.net.0.hwaddr = 4e:fc:0a:d5:2d:ff" >> "$CONFIG_FILE"
+
 if [ "$CPU_TYPE" = "sev-snp" ]; then
     DEV_ID=$(stat -c '%t:%T' /dev/sev-guest | awk -F: '{printf "%d:%d\n", "0x"$1, "0x"$2}')
     echo "lxc.cgroup2.devices.allow = c $DEV_ID rwm" >> "$CONFIG_FILE"

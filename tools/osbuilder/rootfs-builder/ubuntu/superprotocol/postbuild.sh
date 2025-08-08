@@ -56,7 +56,7 @@ run_postbuild() {
     sed -i '1 s|^.*$|account required pam_access.so|' "${rootfs_dir}/etc/pam.d/login"
 
     set -x
-    #cp "${script_dir}/cert/superprotocol-ca.crt" "${rootfs_dir}/usr/local/share/ca-certificates/superprotocol-ca.crt"
+    cp "${script_dir}/cert/superprotocol-ca.crt" "${rootfs_dir}/usr/local/share/ca-certificates/superprotocol-ca.crt"
     cp "${script_dir}/cert/registry.superprotocol.local.ca.crt" "${rootfs_dir}/usr/local/share/ca-certificates/registry.superprotocol.local.ca.crt"
 
     mkdir -p "${rootfs_dir}/etc/super/certs"

@@ -28,7 +28,7 @@ if [ -f "$SRC_YAML" ]; then
         yq-go e '.pki.ownChallenge.type = strenv(CPU_TYPE)' "$SRC_YAML" > "$DST_YAML"
         echo "Patched $DST_YAML with type: $CPU_TYPE using yq."
     else
-        echo "Error: yq is not installed. Please install yq for YAML editing."
+        echo "Error: yq-go is not installed. Please install yq-go for YAML editing."
         exit 1
     fi
 else

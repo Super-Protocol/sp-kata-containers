@@ -1,2 +1,2 @@
 USE_LXC_BRIDGE="true"
-LXC_DHCP_CONFILE=/etc/lxc/dnsmasq.conf
+LXC_DHCP_CONFILE="/etc/lxc/dnsmasq.conf"

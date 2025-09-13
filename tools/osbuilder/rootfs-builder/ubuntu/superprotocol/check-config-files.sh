@@ -51,10 +51,7 @@ fi
 
 if [[ "$CMDLINE" == *"sp-debug=true"* ]]; then
     CPU_TYPE="untrusted";
-fi
-
-if [[ -f "/etc/tdx-attest.conf" ]] \
-    && [[ -c "/dev/tdx_guest" ]]; then
+elif [[ -c "/dev/tdx_guest" ]]; then
     CPU_TYPE="tdx";
 elif [[ -c "/dev/sev-guest" ]]; then
     CPU_TYPE="sev-snp";
